@@ -2,9 +2,6 @@
 ;
 disk_load:
     pusha
-    ; reading from disk requires setting specific values in all registers
-    ; so we will overwrite our input parameters from 'dx'. Let's save it
-    ; to the stack for later use.
     push dx
 
     mov ah, 0x02 ; ah <- int 0x13 function. 0x02 = 'read'

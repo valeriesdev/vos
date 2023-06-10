@@ -8,6 +8,6 @@ An operating system built over quite some time, largely based off of cfenollosa'
  - [X] Memory Allocator
  - [X] Expandable C Kernel
  - [X] Hard Disk Reading
- - [ ] File System
- - [ ] Text Editor
  - [ ] C Compiler
+ - [ ] Text Editor
+ - [ ] File System
