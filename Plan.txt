@@ -1,0 +1,8 @@
+[X] Bootloader
+[X] Graphics Driver
+[X] Keyboard driver
+[X] Expandable C Kernel
+[X] Memory Allocator
+[ ] Hard disk reading
+[ ] File system
+[ ] C Compiler
