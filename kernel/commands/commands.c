@@ -21,6 +21,6 @@ void (*resolve_command(struct command_block command_resolver_head, char* functio
 		current = *current.next;
 	}
 
-	if(strcmp(current.call_string, function_call_string) != 0) return;
+	if(strcmp(current.call_string, function_call_string) != 0) return NULLFUNC;
 	return current.function;
 }

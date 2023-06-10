@@ -15,7 +15,7 @@ void kernel_main() {
 
     initialize_memory();
 
-    kprint("Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
+    kprint("Welcome to VOS!\n> ");
 
     struct command_block temporary_head = {NULLFUNC, "", NULL};
     command_resolver_head = temporary_head;
@@ -27,8 +27,6 @@ void kernel_main() {
 
 
 void user_input(char *input) {
-    resolve_command(command_resolver_head, input)(input);
-    kprint("You said: ");
-    kprint(input);
-    kprint("\n> ");
+    resolve_command(command_resolver_head, str_split(input, ' ')[0])(input);
+    kprint("> ");
 }

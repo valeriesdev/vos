@@ -95,8 +95,12 @@ char** str_split(char* a_str, const char a_delim) {
         current = a_str[i];
     }
 
-    if(count == 0) return a_str;
     char** output = malloc((count+1)*sizeof(char*));
+    if(count == 0) { 
+        output[0] = a_str;
+        return output; 
+    }
+    
 
     current = a_str[0];
     count = 0;
