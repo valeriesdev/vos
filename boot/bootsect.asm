@@ -1,4 +1,3 @@
-; バレリ製
 [org 0x7c00]               ; Memory location is 0x7c00
 KERNEL_OFFSET equ 0x1000   ; The kernel location is 0x7c00
  
@@ -14,7 +13,6 @@ KERNEL_OFFSET equ 0x1000   ; The kernel location is 0x7c00
 %include "boot/print_hex.asm"
 %include "boot/disk.asm"
 %include "boot/gdt.asm"
-%include "boot/32bit_print.asm"
 %include "boot/switch_pm.asm"
 
 [bits 16]                  ; This section is 16-bit
