@@ -1,7 +1,7 @@
 [org 0x7c00]               ; Memory location is 0x7c00
 KERNEL_OFFSET equ 0x1000   ; The kernel location is 0x7c00
  
-    mov [BOOT_DRIVE], dl   ; The BIOS places the boot drive in DL, so we store it.
+    mov [BOOT_DRIVE], dl   ; The BIOS places the boot drive in DL; retrieve it
     mov bp, 0x9000         ; Place the stack at 0x9000
     mov sp, bp             ; ^
  

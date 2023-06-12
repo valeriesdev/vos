@@ -9,5 +9,6 @@ struct command_block {
 	char *call_string;
 	struct command_block *next;
 };
+
 void register_command(struct command_block *command_resolver_head, void (*function)(), char* function_call_string);
 void (*resolve_command(struct command_block command_resolver_head, char* function_call_string))(char*);

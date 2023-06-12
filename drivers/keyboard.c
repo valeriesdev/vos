@@ -39,7 +39,7 @@ static void keyboard_callback(registers_t *regs) {
     /* The PIC leaves us the scancode in port 0x60 */
     uint8_t scancode = port_byte_in(0x60);
     
-    if (scancode > SC_MAX && scancode != LSHIFTR) return;       // Ignore scancodes that we have not programmed in      | プログラムしていないスキャンコードを無視する
+    if (scancode > SC_MAX && scancode != LSHIFTR) return;       // Ignore scancodes that we have not programmed in
     if (scancode == BACKSPACE) {
         backspace(key_buffer);
         kprint_backspace();
@@ -47,19 +47,23 @@ static void keyboard_callback(registers_t *regs) {
         kprint("\n");
         user_input(key_buffer); /* kernel-controlled function */
         key_buffer[0] = '\0';
-    } else if (scancode == LSHIFTP) {                           // If the user presses shift, disable caps              | ユーザーがShiftキーを押した場合は、キャップを無効にします
-        caps = 0;                                               // The caps variable works backwards                    | caps変数は逆方向に機能します
-    } else if (scancode == LSHIFTR) {                           // If the user releases shift, enable caps              | ユーザーがシフトを解放した場合は、上限を有効にします
-        caps = 1;                                               // The caps variable works backwards                    | caps変数は逆方向に機能します
-    } else {                                                    // If the pressed letter is normal                      | 押されたレターが正常な場合
-        char letter = sc_ascii[(int)scancode + ((int)caps)*42]; // Get letter by accessing ascii indexed by scancode    | scancodeでインデックス付けされたasciiにアクセスしてレターを取得
-        char str[2] = {letter, '\0'};                           // Then, we add '\0' to the end to terminate the string | 次に、末尾に「\ 0」を追加して、文字列を終了します
-        append(key_buffer, letter);                             // Then, we place the letter in the key buffer          | 次に、その文字をキーバッファに配置します
-        kprint(str);                                            // Then, we print the string                            | 次に、文字列を印刷します **/ 
+    } else if (scancode == LSHIFTP) {                           // If the user presses shift, disable caps
+        caps = 0;                                               // The caps variable works backwards
+    } else if (scancode == LSHIFTR) {                           // If the user releases shift, enable caps
+        caps = 1;                                               // The caps variable works backwards
+    } else {                                                    // If the pressed letter is normal
+        char letter = sc_ascii[(int)scancode + ((int)caps)*42]; // Get letter by accessing ascii indexed by scancode
+        char str[2] = {letter, '\0'};                           // Then, we add '\0' to the end to terminate the string
+        append(key_buffer, letter);                             // Then, we place the letter in the key buffer
+        kprint(str);                                            // Then, we print the string
     }
     UNUSED(regs);
 }
 
 void init_keyboard() {
    register_interrupt_handler(IRQ1, keyboard_callback); 
+}
+
+void rehook_keyboard(void (*new_function)()) {
+    register_interrupt_handler(IRQ1, new_function);
 }

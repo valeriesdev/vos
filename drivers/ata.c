@@ -33,6 +33,18 @@ ERR: a 1 indicates that an error occured. An error code has been placed in the e
 
 static void ATA_wait_BSY();
 static void ATA_wait_DRQ();
+
+/**
+ * Function: read_sectors_ATA_PIO
+ * ------------------------------
+ * Reads sector_count sectors from LBA into target address via ATA_PIO
+ * 
+ * target_address: address to store data in
+ * LBA           : logical block address to read from
+ * sector_count  : how many sectors to read
+ * 
+ * Returns       : nothing
+ **/
 void read_sectors_ATA_PIO(uint32_t target_address, uint32_t LBA, uint8_t sector_count) {
 
     ATA_wait_BSY();
@@ -76,9 +88,12 @@ void write_sectors_ATA_PIO(uint32_t LBA, uint8_t sector_count, uint32_t* bytes) 
     }
 }
 
+// Loops until ATA status is no longer busy
 static void ATA_wait_BSY() {
     while(port_byte_in(ATA_STATUS_COMMAND)&STATUS_BSY);
 }
+
+// Loops until ATA status is ready
 static void ATA_wait_DRQ() {
     while(!(port_byte_in(ATA_STATUS_COMMAND)&STATUS_RDY));
 }

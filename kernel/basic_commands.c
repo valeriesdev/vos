@@ -1,7 +1,8 @@
 #include "commands.h"
-#include "../../libc/string.h"
-#include "../../libc/mem.h"
-#include "../../drivers/screen.h"
+#include "../libc/string.h"
+#include "../libc/mem.h"
+#include "../drivers/screen.h"
+#include "../libc/function.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -10,18 +11,24 @@ void ECHO(char *args) {
 	kprint("\n");
 	kprint(str_split("ECHO HELLO",' ')[1]);
 	kprint("\n");
+
+	UNUSED(args);
+
 	return;
 }
 
 void END(char *args) {
 	kprint("Stopping the CPU. Bye!\n");
     asm volatile("hlt");
+
+    UNUSED(args);
 }
 
 void PAGE(char *args) {
     kprintn(args);
-    uint32_t phys_addr;
     uint32_t page = malloc(1000);
     kprint("Page: ");
     kprintn(hex_to_ascii(page));
+
+    UNUSED(args);
 }

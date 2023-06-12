@@ -5,7 +5,8 @@
 #include "../libc/mem.h"
 #include <stdint.h>
 #include "../drivers/ata.h"
-#include "commands/commands.h"
+#include "commands.h"
+#include "../stock/tedit/tedit.h"
 
 struct command_block command_resolver_head;
 
@@ -23,6 +24,7 @@ void kernel_main() {
     register_command(&command_resolver_head, END, "END");
     register_command(&command_resolver_head, PAGE, "PAGE");
     register_command(&command_resolver_head, ECHO, "ECHO");
+    register_command(&command_resolver_head, launch_tedit, "tedit");
 }
 
 
