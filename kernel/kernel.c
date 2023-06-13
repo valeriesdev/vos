@@ -15,7 +15,6 @@ void kernel_main() {
     irq_install();
 
     initialize_memory();
-
     kprint("Welcome to VOS!\n> ");
 
     struct command_block temporary_head = {NULLFUNC, "", NULL};

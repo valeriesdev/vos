@@ -34,7 +34,7 @@ inline size_t align(size_t n) {
 }
 
 void print_node(struct block *current) {
-	kprint("ADDR: ");
+	/*kprint("ADDR: ");
 	kprint(hex_to_ascii((int) current));
 	kprint(", SIZE:");
 	kprint(hex_to_ascii((int)(*current).size));
@@ -42,14 +42,18 @@ void print_node(struct block *current) {
 	kprint(hex_to_ascii((int)(*current).used));
 	kprint(", NEXT:");
 	kprint(hex_to_ascii((int)(*current).next));
-	kprint("\n");
+	kprint("\n");*/
 }
 
 void initialize_memory() {
+	head = 0x10000;
+	top = 0x10000;
 	(*top).size = align(32);
 	(*top).next = NULL;
 	(*top).valid = 7;
 	(*top).used = TRUE;
+	kprintn(hex_to_ascii(head));
+	print_node(head);
 
 	return;
 }
@@ -123,5 +127,6 @@ void traverse() {
 }
 
 void *malloc(uint32_t size) {
-	return alloc(size);
+	void* t = alloc(size);
+	return t;
 }

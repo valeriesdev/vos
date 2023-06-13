@@ -25,8 +25,7 @@ void END(char *args) {
 }
 
 void PAGE(char *args) {
-    kprintn(args);
-    uint32_t page = malloc(1000);
+    void* page = malloc(1000);
     kprint("Page: ");
     kprintn(hex_to_ascii(page));
 

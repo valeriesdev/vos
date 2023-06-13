@@ -23,8 +23,12 @@ char* int_to_ascii(int n) {
     return str;
 }
 
+//needs to be entirely reworked.
+// the way it deals with memory is very unsafe and prone to overwrites
+// it needs to be inplace, most likely pass in a char* to save into
+// 
 char* hex_to_ascii(int n) {
-    char *str = "";
+    char *str = malloc(sizeof(char)*12);
     str[0] = '\0';
     append(str, '0');
     append(str, 'x');

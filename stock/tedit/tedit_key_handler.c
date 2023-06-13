@@ -2,17 +2,17 @@
 
 char* key_buffer;
 const char ascii[] =       {'?','?','1','2','3','4','5','6','7','8','9',
-					       '0','-','=','?','?','q','w','e','r','t',
-					       'y','u','i','o','p','[',']','?','?','a',
-					       's','d','f','g','h','j','k','l',';','\'',
-					       '`','?','\\','z','x','c','v','b','n','m',
-					       ',','.','/','?','?','?',' ','?','?','?'};
+					        '0','-','=','?','?','q','w','e','r','t',
+					        'y','u','i','o','p','[',']','?','?','a',
+					        's','d','f','g','h','j','k','l',';','\'',
+					        '`','?','\\','z','x','c','v','b','n','m',
+					        ',','.','/','?','?','?',' ','?','?','?'};
 const char ascii_shift[] = {'?','?','!','@','#','$','%','^','&','*','(',
-					  ')','_','+','?','?','Q','W','E','R','T',
-					  'Y','U','I','O','P','{','}','?','?','A',
-					  'S','D','F','G','H','J','K','L',':','\"',
-					  '~','?','\\','Z','X','C','V','B','N','M',
-					  '<','>','?','?','?','?',' ','?','?','?'};
+					  		')','_','+','?','?','Q','W','E','R','T',
+					  		'Y','U','I','O','P','{','}','?','?','A',
+					 		'S','D','F','G','H','J','K','L',':','\"',
+					  		'~','?','\\','Z','X','C','V','B','N','M',
+					  		'<','>','?','?','?','?',' ','?','?','?'};
 
 #define BACKSPACE 0x0E
 #define ENTER 0x1C
@@ -89,15 +89,22 @@ void file_writing_hook(registers_t *regs) {
     	return;       // Ignore scancodes that we have not programmed in
     } else if (scancode == BACKSPACE) {
         backspace(key_buffer);
+        backspace(file);
         kprint_backspace();
     } else if (scancode == ENTER) {
         kprint("\n");
         key_buffer[0] = '\0';
     } else {                                                    
         char letter =  (special_keys[LSHIFTF]->pressed) ? ascii_shift[(int) scancode] : ascii[(int) scancode];
-        char str[2] = {letter, '\0'}; 
-        append(key_buffer, letter); 
-        kprint(str);
+        if(letter == 's' && special_keys[LCTRLF]->pressed) {
+        	append(file,'\0');
+        	file_save();
+        } else {
+        	char str[2] = {letter, '\0'}; 
+        	append(key_buffer, letter); 
+        	append(file, letter);
+        	kprint(str);
+    	}
     }
     UNUSED(regs);
 }
