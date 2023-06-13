@@ -9,11 +9,11 @@ KERNEL_OFFSET equ 0x1000   ; The kernel location is 0x7c00
     call switch_to_pm      ; Switch to protected mode
     jmp $                  ; Never executed
 
-%include "boot/print.asm"
-%include "boot/print_hex.asm"
-%include "boot/disk.asm"
-%include "boot/gdt.asm"
-%include "boot/switch_pm.asm"
+%include "src/boot/print.asm"
+%include "src/boot/print_hex.asm"
+%include "src/boot/disk.asm"
+%include "src/boot/gdt.asm"
+%include "src/boot/switch_pm.asm"
 
 [bits 16]                  ; This section is 16-bit
 load_kernel:               ; Load the kernel from disk

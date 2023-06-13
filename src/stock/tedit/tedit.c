@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
-#include "tedit.h"
+#include "stock/tedit/tedit.h"
 
 const char *top_row = "[VOS TEdit v0.0] ctrl+s: save | ctrl+q: exit | File:";
 const char *file_creation_row = "Enter filename:";

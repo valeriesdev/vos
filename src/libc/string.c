@@ -1,8 +1,8 @@
-#include "string.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "../drivers/screen.h"
-#include "mem.h"
+#include "drivers/screen.h"
+#include "libc/string.h"
+#include "libc/mem.h"
 
 /**
  * K&R implementation

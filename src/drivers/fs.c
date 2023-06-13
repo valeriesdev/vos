@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include "ata.h"
-#include "../libc/mem.h"
+#include "drivers/ata.h"
+#include "libc/mem.h"
 
 uint32_t resolve_filename(char* name) {
 

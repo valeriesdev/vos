@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
-#include "mem.h"
-#include "../libc/string.h"
-#include "../drivers/screen.h"
+#include "libc/mem.h"
+#include "libc/string.h"
+#include "drivers/screen.h"
 #define TRUE 1
 #define FALSE 0
 

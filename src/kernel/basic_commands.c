@@ -1,10 +1,10 @@
-#include "commands.h"
-#include "../libc/string.h"
-#include "../libc/mem.h"
-#include "../drivers/screen.h"
-#include "../libc/function.h"
 #include <stdint.h>
 #include <stddef.h>
+#include "kernel/commands.h"
+#include "libc/string.h"
+#include "libc/mem.h"
+#include "drivers/screen.h"
+#include "libc/function.h"
 
 void ECHO(char *args) {
 	kprint(args);

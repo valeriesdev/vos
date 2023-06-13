@@ -1,12 +1,12 @@
-#include "../cpu/isr.h"
-#include "../drivers/screen.h"
-#include "kernel.h"
-#include "../libc/string.h"
-#include "../libc/mem.h"
 #include <stdint.h>
-#include "../drivers/ata.h"
-#include "commands.h"
-#include "../stock/tedit/tedit.h"
+#include "cpu/isr.h"
+#include "drivers/screen.h"
+#include "drivers/ata.h"
+#include "libc/string.h"
+#include "libc/mem.h"
+#include "kernel/kernel.h"
+#include "kernel/commands.h"
+#include "stock/tedit/tedit.h"
 
 struct command_block command_resolver_head;
 

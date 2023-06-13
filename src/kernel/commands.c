@@ -1,7 +1,7 @@
-#include "commands.h"
-#include "../libc/string.h"
 #include <stdint.h>
 #include <stddef.h>
+#include "kernel/commands.h"
+#include "libc/string.h"
 void NULLFUNC(char* args) { return; }
 
 /**
