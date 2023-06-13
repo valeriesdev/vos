@@ -1,0 +1,1 @@
+void load_fat_from_disk();

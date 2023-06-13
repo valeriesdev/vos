@@ -24,7 +24,7 @@ run: binary/os-image.bin
 
 debug: binary/os-image.bin binary/kernel.elf
 	qemu-system-i386 -s -device piix3-ide,id=ide -drive id=disk,file=binary/os-image.bin,format=raw,if=none -device ide-hd,drive=disk,bus=ide.0 -d guest_errors,int &
-	${GDB} -ex "target remote localhost:1234" -ex "symbol-file kernel.elf"
+	${GDB} -ex "target remote localhost:1234" -ex "symbol-file binary/kernel.elf"
 
 binary/%.o: %.c# ${HEADERS}
 	${CC} ${CFLAGS} -c $< -o$@

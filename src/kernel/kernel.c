@@ -7,6 +7,7 @@
 #include "kernel/kernel.h"
 #include "kernel/commands.h"
 #include "stock/tedit/tedit.h"
+#include "filesystem/filesystem.h"
 
 struct command_block command_resolver_head;
 
@@ -23,7 +24,9 @@ void kernel_main() {
     register_command(&command_resolver_head, END, "END");
     register_command(&command_resolver_head, PAGE, "PAGE");
     register_command(&command_resolver_head, ECHO, "ECHO");
-    register_command(&command_resolver_head, launch_tedit, "tedit");
+    register_command(&command_resolver_head, launch_tedit, "tedit"); 
+
+    load_fat_from_disk();
 }
 
 
