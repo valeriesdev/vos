@@ -62,13 +62,14 @@ void read_sectors_ATA_PIO(uint32_t target_address, uint32_t LBA, uint8_t sector_
         ATA_wait_BSY();
         ATA_wait_DRQ();
         int i = 0;
-        for(i = 0;i < 256; i++)
+        for(i = 0;i < 256; i++) {
             target[i] = port_word_in(ATA_DATA);
+        }
         target += 256;
     }
 }
 
-void write_sectors_ATA_PIO(uint32_t LBA, uint8_t sector_count, uint32_t* bytes) {
+void write_sectors_ATA_PIO(uint32_t LBA, uint8_t sector_count, uint16_t* bytes) {
     ATA_wait_BSY();
     port_byte_out(ATA_SELECT_DRIVE,   0xE0 | ((LBA >>24) & 0xF));
     port_byte_out(ATA_SECTOR_COUNT,   sector_count);

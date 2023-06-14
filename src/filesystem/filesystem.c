@@ -3,17 +3,27 @@
 #include "filesystem/filesystem.h"
 #include "drivers/ata.h"
 #include "drivers/screen.h"
+#include "libc/mem.h"
+#include "libc/string.h"
+
+#define initial_node_name "INIT_NODE"
 
 struct file {
 	char name[32];
 	uint32_t lba;
-	uint32_t length;
-};
-
-struct fat_node {
-	struct file file;
+	uint32_t length;  // In sectors
 	struct file* next;
 };
+
+struct file *fat_head;
+
+void initialize_fat_in_memory() {
+	fat_head = (struct file*)malloc(sizeof(struct file));
+	memory_copy(&initial_node_name, &fat_head->name, 9);
+	fat_head->lba = 74;
+	fat_head->length = 1;
+	fat_head->next = NULL;
+}
 
 // Load FAT from LBA65/0x8200
 void load_fat_from_disk() {
@@ -23,6 +33,9 @@ void load_fat_from_disk() {
 	// processs FAT
 }
 
-void initialize_fat_to_disk() {
-	
+void initialize_empty_fat_to_disk() {
+	initialize_fat_in_memory();
+	uint16_t* t_storage = malloc(sizeof(uint8_t)*32);
+	memory_copy(fat_head,t_storage,sizeof(fat_head));
+	write_sectors_ATA_PIO(65, 2, fat_head);
 }

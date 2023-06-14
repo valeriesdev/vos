@@ -26,6 +26,7 @@ void kernel_main() {
     register_command(&command_resolver_head, ECHO, "ECHO");
     register_command(&command_resolver_head, launch_tedit, "tedit"); 
 
+    initialize_empty_fat_to_disk();
     load_fat_from_disk();
 }
 

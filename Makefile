@@ -6,15 +6,18 @@ OBJ = ${C_SOURCES:.c=.o binary/interrupt.o}
 CC = /usr/local/i386elfgcc/bin/i386-elf-gcc
 GDB = gdb
 LD = /usr/local/i386elfgcc/bin/i386-elf-ld
-CFLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -m32 -Iinclude
+LDOBJ = /usr/local/i386elfgcc/bin/i386-elf-objcopy
+CFLAGS = -g -ffreestanding -Wall -Wextra -fno-exceptions -m32 -Iinclude -fvar-tracking
 
 binary/os-image.bin: binary/bootsect.bin binary/kernel.bin
 	@echo "HELLO" $(C_SOURCES)
 	cat $^ > binary/os-image.bin
-	truncate -s 32K binary/os-image.bin
+	truncate -s 128K binary/os-image.bin
 
-binary/kernel.bin: binary/kernel_entry.o ${OBJ}
-	$(LD) -o $@ -Ttext 0x1000 $^ --oformat binary
+#binary/kernel.bin: binary/kernel_entry.o ${OBJ}
+#	$(LD) -o $@ -Ttext 0x1000 $^ --oformat binary
+binary/kernel.bin: binary/kernel.elf
+	$(LDOBJ) -O binary $^ $@
 
 binary/kernel.elf: binary/kernel_entry.o ${OBJ}
 	$(LD) -o $@ -Ttext 0x1000 $^  
