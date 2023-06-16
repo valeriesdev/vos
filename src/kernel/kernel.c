@@ -12,10 +12,11 @@
 struct command_block command_resolver_head;
 
 void kernel_main() {
+    initialize_memory();
+
     isr_install();
     irq_install();
 
-    initialize_memory();
     kprint("Welcome to VOS!\n> ");
 
     struct command_block temporary_head = {NULLFUNC, "", NULL};
@@ -32,6 +33,9 @@ void kernel_main() {
 
 
 void user_input(char *input) {
-    resolve_command(command_resolver_head, str_split(input, ' ')[0])(input);
+    kprint("\n");
+    resolve_command(command_resolver_head, str_split(key_buffer, ' ')[0])(key_buffer);
     kprint("> ");
+
+    key_buffer[0] = '\0';
 }

@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include "kernel/commands.h"
 #include "libc/string.h"
+#include "drivers/screen.h"
 void NULLFUNC(char* args) { return; }
 
 /**

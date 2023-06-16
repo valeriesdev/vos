@@ -10,7 +10,7 @@ char* file;
 
 void get_filename() {
 	kprint_at(file_creation_row, 0, 1);
-	rehook_keyboard(get_string_hook);
+	//rehook_keyboard(get_string_hook);
 }
 
 void filename_recieved() {
@@ -24,7 +24,7 @@ void filename_recieved() {
 	
 	filename = new_string;
 	kprintn(filename);
-	rehook_keyboard(file_writing_hook);
+	//rehook_keyboard(file_writing_hook);
 
 	clear_screen();
 	draw_ui();
@@ -45,7 +45,7 @@ void launch_tedit(char *args) {
 	file = malloc(sizeof(char) * 1024);
 	clear_screen();
 	draw_ui();
-	init_special_keys();
+	//init_special_keys();
 	get_filename();
 }
 
@@ -55,5 +55,5 @@ void draw_ui() {
 }
 
 void resolve_program_close() {
-	init_keyboard();
+	//init_keyboard();
 }

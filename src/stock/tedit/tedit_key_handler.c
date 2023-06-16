@@ -1,4 +1,4 @@
-#include "stock/tedit/tedit.h"
+/*#include "stock/tedit/tedit.h"
 
 char* key_buffer;
 const char ascii[] =       {'?','?','1','2','3','4','5','6','7','8','9',
@@ -107,4 +107,4 @@ void file_writing_hook(registers_t *regs) {
     	}
     }
     UNUSED(regs);
-}
+}*/
