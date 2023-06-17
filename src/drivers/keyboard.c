@@ -7,6 +7,7 @@
 #include "libc/string.h"
 #include "libc/function.h"
 #include "kernel/kernel.h"
+#include "libc/mem.h"
 
 struct key_callback key_callbacks[10];
 char* key_buffer;
@@ -32,12 +33,12 @@ uint8_t keys_pressed[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 struct keyboard_initializer *create_initializer(char* buffer_addr,
                                                uint8_t n_callbacks,
                                                uint8_t *keycodes,
-                                               void (**gcallback_functions)(), // find another way to do this
+                                               void (**gcallback_functions)(),
                                                void (*gcallback)()   ) {
     struct keyboard_initializer *returnvalue = malloc(sizeof(struct keyboard_initializer));
     int i = 0;
     for(; i < n_callbacks*3; i++) returnvalue->callback_keycodes[i] = keycodes[i];
-    for(; i < 30; i++)            returnvalue->callback_keycodes[i] = NULL;
+    for(; i < 30; i++)            returnvalue->callback_keycodes[i] = 0x0;
     
     returnvalue->nkey_buffer        = buffer_addr;
     returnvalue->num_callbacks      = n_callbacks;
@@ -51,10 +52,10 @@ int attempt_key_callbacks() {
     int i = 0;
     int found_callback = 0;
     for(; i < 10; i++) {
-        if(key_callbacks[i].callback == NULL) break;
+        if(key_callbacks[i].callback == 0x0) break;
         if(keys_pressed[key_callbacks[i].key_1] &&
-           (keys_pressed[key_callbacks[i].key_2] || key_callbacks[i].key_2 == NULL) &&
-           (keys_pressed[key_callbacks[i].key_3] || key_callbacks[i].key_3 == NULL)) {
+           (keys_pressed[key_callbacks[i].key_2] || key_callbacks[i].key_2 == 0x0) &&
+           (keys_pressed[key_callbacks[i].key_3] || key_callbacks[i].key_3 == 0x0)) {
             (key_callbacks[i].callback)();
             found_callback = 1;
             break;
@@ -89,8 +90,29 @@ void default_keyboard_callback(registers_t *regs) {
     UNUSED(regs);
 }
 
+void reset_keyboard() {
+    key_buffer = 0x0;
+    int i = 0;
+    for(; i < 10; i++) {
+        key_callbacks[i].key_1    = 0x0;
+        key_callbacks[i].key_2    = 0x0;
+        key_callbacks[i].key_3    = 0x0;
+        key_callbacks[i].callback = 0x0;
+    }
+}
+
+/**
+ * struct keyboard_initializer {
+    char* nkey_buffer;
+    uint8_t num_callbacks;
+    uint8_t callback_keycodes[30]; // 0-2 is callback 1, 3-5 is 2, 6-8 is 3, etc
+    void (**callback_functions)();    
+    void (*general_callback)();
+};
+**/
 void init_keyboard(struct keyboard_initializer* nkey_initializer) {
-    // Register new key buffer location
+    reset_keyboard();
+    if(key_buffer != 0x0) free(key_buffer);
     key_buffer = nkey_initializer->nkey_buffer;
 
     int i = 0;
@@ -101,7 +123,7 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer) {
         key_callbacks[i].callback = nkey_initializer->callback_functions[i];
     }
 
-    if(nkey_initializer->general_callback == NULL) 
+    if(nkey_initializer->general_callback == 0x0) 
         register_interrupt_handler(IRQ1, default_keyboard_callback); 
     else 
         register_interrupt_handler(IRQ1, nkey_initializer->general_callback);

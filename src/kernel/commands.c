@@ -3,6 +3,7 @@
 #include "kernel/commands.h"
 #include "libc/string.h"
 #include "drivers/screen.h"
+#include "libc/mem.h"
 void NULLFUNC(char* args) { return; }
 
 /**

@@ -1,12 +1,4 @@
-#include "../../drivers/screen.h"
-#include "../../drivers/keyboard.h"
-#include "../../cpu/ports.h"
-#include "../../cpu/isr.h"
-#include "../../libc/string.h"
-#include "../../libc/function.h"
-#include "../../kernel/kernel.h"
-#include "../../libc/mem.h"
-
+#include "cpu/isr.h"
 extern char* key_buffer;
 extern char* file;
 void launch_tedit(char *args);

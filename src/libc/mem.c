@@ -46,13 +46,13 @@ void print_node(struct block *current) {
 }
 
 void initialize_memory() {
-	head = 0x10000;
-	top = 0x10000;
+	head = (struct block*)0x10000;
+	top  = (struct block*)0x10000;
 	(*top).size = align(32);
 	(*top).next = NULL;
 	(*top).valid = 7;
 	(*top).used = TRUE;
-	kprintn(hex_to_ascii(head));
+	kprintn(hex_to_ascii((int)head));
 	print_node(head);
 
 	return;
@@ -102,7 +102,7 @@ void *find_free(size_t n) {
 	return current;
 }
 
-void free(uint32_t address) {
+void free(void *address) {
 	struct block *changeBlock = (struct block *)address;
 	char *tBlock = (char*)address;
 

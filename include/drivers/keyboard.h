@@ -31,10 +31,22 @@ struct key_callback {
 
 extern char *key_buffer;
 
+/** Example to initialize the keyboard with one callback, for the enter key.
+ *  uint8_t *keycodes = malloc(sizeof(uint8_t)*3);
+ *  keycodes[0] = 0x1C; keycodes[1] = NULL; keycodes[2] = NULL;
+ *  void (**gcallback_functions)() = malloc(sizeof(void*)*10);
+ *  *gcallback_functions = user_input;
+ *  struct keyboard_initializer* keyboardi = create_initializer(malloc(sizeof(char)*256),
+ *                                                              1,
+ *                                                              keycodes,
+ *                                                              gcallback_functions,
+ *                                                              NULL);
+ *  init_keyboard(keyboardi);
+  **/
 void init_keyboard(struct keyboard_initializer* nkey_initializer);
 int attempt_key_callbacks();
 struct keyboard_initializer *create_initializer(char* buffer_addr,
                                                uint8_t n_callbacks,
                                                uint8_t *keycodes,
-                                               void (*gcallback_functions[10])(),
+                                               void (**gcallback_functions)(),
                                                void (*gcallback)());

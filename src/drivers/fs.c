@@ -1,14 +1,15 @@
 #include <stdint.h>
 #include "drivers/ata.h"
 #include "libc/mem.h"
+#include "libc/function.h"
 
 uint32_t resolve_filename(char* name) {
-
+	UNUSED(name);
 	return 33;
 }
 
 uint32_t resolve_filesize(char* name) {
-	
+	UNUSED(name);
 	return 1;
 }
 
@@ -23,7 +24,7 @@ uint32_t resolve_filesize(char* name) {
 void* load_program(char* name) {
 	char* file_loaded = (char *)malloc(resolve_filesize(name) * 512);
 	read_sectors_ATA_PIO(
-		&file_loaded,
+		(uint32_t)&file_loaded,
 		resolve_filename(name), 
 		resolve_filesize(name)
 	);

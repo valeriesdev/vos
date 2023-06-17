@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "drivers/screen.h"
 #include "libc/string.h"
 #include "libc/mem.h"
@@ -32,21 +33,19 @@ char* hex_to_ascii(int n) {
     str[0] = '\0';
     append(str, '0');
     append(str, 'x');
-    char zeros = 0;
+
+    const char * hex = "0123456789abcdef";
+    uint8_t blankspace = 1;
 
     int32_t tmp;
     int i;
-    for (i = 28; i > 0; i -= 4) {
+    for (i = 28; i >= 0; i -= 4) {
         tmp = (n >> i) & 0xF;
-        if (tmp == 0 && zeros == 0) continue;
-        zeros = 1;
-        if (tmp > 0xA) append(str, tmp - 0xA + 'a');
-        else append(str, tmp + '0');
+        if (tmp == 0 && blankspace) continue;
+        blankspace = 0;
+        append(str, hex[tmp]);
     }
-
-    tmp = n & 0xF;
-    if (tmp >= 0xA) append(str, tmp - 0xA + 'a');
-    else append(str, tmp + '0');
+    
     return str;
 }
 
