@@ -29,7 +29,7 @@ char* int_to_ascii(int n) {
 // it needs to be inplace, most likely pass in a char* to save into
 // 
 char* hex_to_ascii(int n) {
-    char *str = malloc(sizeof(char)*12);
+    char *str = malloc(sizeof(char)*12); // needs to be replaced with inplace
     str[0] = '\0';
     append(str, '0');
     append(str, 'x');

@@ -1,14 +1,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "cpu/isr.h"
+#include "libc/mem.h"
 #include "cpu/idt.h"
-#include "cpu/timer.h"
 #include "cpu/ports.h"
+#include "cpu/timer.h"
+#include "libc/string.h"
 #include "drivers/screen.h"
 #include "drivers/keyboard.h"
-#include "libc/string.h"
 #include "kernel/kernel.h"
-#include "libc/mem.h"
 
 isr_t interrupt_handlers[256];
 
@@ -150,14 +150,5 @@ void irq_install() {
     asm volatile("sti");
     init_timer(50);
 
-    uint8_t *keycodes = malloc(sizeof(uint8_t)*3);
-    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
-    void (**gcallback_functions)() = malloc(sizeof(void*)*10);
-    *gcallback_functions = user_input;
-    struct keyboard_initializer* keyboardi = create_initializer(malloc(sizeof(char)*256),
-                                                                1,
-                                                                keycodes,
-                                                                gcallback_functions,
-                                                                0x0);
-    init_keyboard(keyboardi);
+    kernel_init_keyboard();
 }

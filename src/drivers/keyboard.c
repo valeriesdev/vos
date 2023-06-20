@@ -45,6 +45,8 @@ struct keyboard_initializer *create_initializer(char* buffer_addr,
     returnvalue->callback_functions = gcallback_functions;
     returnvalue->general_callback   = gcallback;
 
+    free(keycodes);
+
     return returnvalue;
 }
 
@@ -101,15 +103,6 @@ void reset_keyboard() {
     }
 }
 
-/**
- * struct keyboard_initializer {
-    char* nkey_buffer;
-    uint8_t num_callbacks;
-    uint8_t callback_keycodes[30]; // 0-2 is callback 1, 3-5 is 2, 6-8 is 3, etc
-    void (**callback_functions)();    
-    void (*general_callback)();
-};
-**/
 void init_keyboard(struct keyboard_initializer* nkey_initializer) {
     reset_keyboard();
     if(key_buffer != 0x0) free(key_buffer);

@@ -8,6 +8,7 @@
 #include "kernel/commands.h"
 #include "stock/tedit/tedit.h"
 #include "filesystem/filesystem.h"
+#include "drivers/keyboard.h"
 
 struct command_block command_resolver_head;
 
@@ -38,4 +39,17 @@ void user_input(char *input) {
     kprint("> ");
 
     key_buffer[0] = '\0';
+}
+
+void kernel_init_keyboard() {
+    uint8_t *keycodes = malloc(sizeof(uint8_t)*3);
+    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
+    void (**gcallback_functions)() = malloc(sizeof(void*)*10);
+    *gcallback_functions = user_input;
+    struct keyboard_initializer* keyboardi = create_initializer(malloc(sizeof(char)*256),
+                                                                1,
+                                                                keycodes,
+                                                                gcallback_functions,
+                                                                0x0);
+    init_keyboard(keyboardi);
 }

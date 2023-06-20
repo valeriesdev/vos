@@ -1,6 +1,6 @@
 C_SOURCES := $(wildcard src/*.c src/*/*.c src/*/*/*.c src/*/*/*/*.c)
 B_SOURCES := $(wildcard src/*.o src/*/*.o src/*/*/*.o src/*/*/*/*.o)
-HEADERS := $(wildcard include/*.h src/*/*.h src/*/*/*.h src/*/*/*/*.h)
+#HEADERS := $(wildcard include/*.h src/*/*.h src/*/*/*.h src/*/*/*/*.h)
 OBJ = ${C_SOURCES:.c=.o binary/interrupt.o} 
 
 CC = /usr/local/i386elfgcc/bin/i386-elf-gcc
@@ -13,8 +13,6 @@ binary/os-image.bin: binary/bootsect.bin binary/kernel.bin
 	cat $^ > binary/os-image.bin
 	truncate -s 128K binary/os-image.bin
 
-#binary/kernel.bin: binary/kernel_entry.o ${OBJ}
-#	$(LD) -o $@ -Ttext 0x1000 $^ --oformat binary
 binary/kernel.bin: binary/kernel.elf
 	$(LDOBJ) -O binary $^ $@
 
@@ -22,13 +20,14 @@ binary/kernel.elf: binary/kernel_entry.o ${OBJ}
 	$(LD) -o $@ -Ttext 0x1000 $^  
 
 run: binary/os-image.bin
-	qemu-system-i386 -fda binary/os-image.bin
+	#qemu-system-i386 -fda binary/os-image.bin
+	qemu-system-i386 -s -device piix3-ide,id=ide -drive id=disk,file=binary/os-image.bin,format=raw,if=none -device ide-hd,drive=disk,bus=ide.0 -d guest_errors,int
 
 debug: binary/os-image.bin binary/kernel.elf
 	qemu-system-i386 -s -device piix3-ide,id=ide -drive id=disk,file=binary/os-image.bin,format=raw,if=none -device ide-hd,drive=disk,bus=ide.0 -d guest_errors,int &
 	${GDB} -ex "target remote localhost:1234" -ex "symbol-file binary/kernel.elf"
 
-binary/%.o: %.c# ${HEADERS}
+binary/%.o: %.c
 	${CC} ${CFLAGS} -c $< -o$@
 
 binary/%.o: src/boot/%.asm

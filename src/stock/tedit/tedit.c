@@ -30,29 +30,13 @@ void get_filename() {
     keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
     void (**gcallback_functions)() = malloc(sizeof(void*)*10);
     *gcallback_functions = filename_recieved;
-    struct keyboard_initializer* keyboardi = create_initializer(filename,
-                                                                1,
-                                                                keycodes,
-                                                                gcallback_functions,
-                                                                0x0);
+    struct keyboard_initializer* keyboardi = create_initializer(filename, 1, keycodes, gcallback_functions, 0x0);
     init_keyboard(keyboardi);
 }
 
-void filename_recieved() {
-	int i = 0;
-	for(i = 0; i < 256; i++) {
-		if(key_buffer[i] == '\0') break;
-	}
-	char* new_string = malloc(i*sizeof(char));
-	memory_copy((uint8_t *)key_buffer, (uint8_t *)new_string, i);
-	key_buffer[0] = '\0';
-	
-	filename = new_string;
-	kprintn(filename);
-	//rehook_keyboard(file_writing_hook);
-
-	clear_screen();
-	draw_ui();
+void enter_callback() {
+	append(file, "\n");
+	kprint("\n");
 }
 
 void file_save() {
@@ -66,23 +50,45 @@ void file_save() {
 	kprint_at(hex_to_ascii((int)ram_saved_file), 13, 0);
 }
 
+void resolve_program_close() {
+	clear_screen();
+	kprint("> ");
+	kernel_init_keyboard();
+}
+
+void filename_recieved() {
+	int i = 0;
+	for(i = 0; i < 256; i++) {
+		if(key_buffer[i] == '\0') break;
+	}
+	char* new_string = malloc(i*sizeof(char));
+	memory_copy((uint8_t *)key_buffer, (uint8_t *)new_string, i);
+	key_buffer[0] = '\0';
+	
+	filename = new_string;
+	kprintn(filename);
+	
+	file = malloc(sizeof(char)*1024);
+
+	uint8_t *keycodes = malloc(sizeof(uint8_t)*9);
+    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
+    keycodes[3] = 0x1D; keycodes[4] = 0x1F; keycodes[5] = 0x0;
+    keycodes[6] = 0x1D; keycodes[7] = 0x22; keycodes[8] = 0x0;
+    void (**gcallback_functions)() = malloc(sizeof(void*)*10);
+    *gcallback_functions     = enter_callback;
+    *(gcallback_functions+1) = file_save;
+    *(gcallback_functions+2) = resolve_program_close;
+    struct keyboard_initializer* keyboardi = create_initializer(file, 3, keycodes, gcallback_functions, 0x0);
+    init_keyboard(keyboardi);
+
+	clear_screen();
+	draw_ui();
+}
+
 void launch_tedit(char *args) {
 	file = malloc(sizeof(char) * 1024);
 	clear_screen();
 	draw_ui();
 
 	get_filename();
-}
-
-void resolve_program_close() {
-	uint8_t *keycodes = malloc(sizeof(uint8_t)*3);
-    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
-    void (**gcallback_functions)() = malloc(sizeof(void*)*10);
-    *gcallback_functions = user_input;
-    struct keyboard_initializer* keyboardi = create_initializer(malloc(sizeof(char)*256),
-                                                                1,
-                                                                keycodes,
-                                                                gcallback_functions,
-                                                                0x0);
-    init_keyboard(keyboardi);
 }
