@@ -30,14 +30,12 @@ void kernel_main() {
     register_command(&command_resolver_head, launch_tedit, "tedit"); 
 
     char* tfile_name = "HELLOWORLDTXT";
-    char* exfiledata = "HELLO WORLD\nTHIS IS AN EXAMPLE FILE!!!!\n YAY!!!!\n";
+    char* exfiledata = "HELLO WORLD\nTHIS IS AN EXAMPLE FILE!!!!\nYAY!!!!\n";
     uint8_t s = 49;
     write_file(tfile_name, exfiledata, s);
-    write_file(tfile_name, exfiledata, s);
-    write_file(tfile_name, exfiledata, s);
-    write_file(tfile_name, exfiledata, s);
 
-    fs_debug();
+    void* tttt = read_file(tfile_name);
+    kprintn((char*)tttt);
 }
 
 
