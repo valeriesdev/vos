@@ -106,7 +106,6 @@ void free(void *address) {
 	struct block *changeBlock = (struct block *)address;
 	char *tBlock = (char*)address;
 
-	//possible error source, remove casts?
 	for(; (int) tBlock >= (int) head; --tBlock) {
 		if((*(struct block *)tBlock).valid == 7) {
 			changeBlock = (struct block *)tBlock;

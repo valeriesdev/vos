@@ -35,7 +35,7 @@ void get_filename() {
 }
 
 void enter_callback() {
-	append(file, "\n");
+	append(file, '\n');
 	kprint("\n");
 }
 

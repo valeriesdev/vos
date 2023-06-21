@@ -14,6 +14,7 @@ struct command_block command_resolver_head;
 
 void kernel_main() {
     initialize_memory();
+    load_fat_from_disk();
 
     isr_install();
     irq_install();
@@ -28,8 +29,15 @@ void kernel_main() {
     register_command(&command_resolver_head, ECHO, "ECHO");
     register_command(&command_resolver_head, launch_tedit, "tedit"); 
 
-    initialize_empty_fat_to_disk();
-    load_fat_from_disk();
+    char* tfile_name = "HELLOWORLDTXT";
+    char* exfiledata = "HELLO WORLD\nTHIS IS AN EXAMPLE FILE!!!!\n YAY!!!!\n";
+    uint8_t s = 49;
+    write_file(tfile_name, exfiledata, s);
+    write_file(tfile_name, exfiledata, s);
+    write_file(tfile_name, exfiledata, s);
+    write_file(tfile_name, exfiledata, s);
+
+    fs_debug();
 }
 
 
