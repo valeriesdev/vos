@@ -1,3 +1,13 @@
+/**
+ * @defgroup   SCREEN screen
+ *
+ * @brief      This file implements a screen driver.
+ * 
+ * @todo       Implement stock features such as drawing boxes.
+ * 
+ * @author     Valerie Whitmire
+ * @date       2023
+ */
 #include <stdint.h>
 #include "drivers/screen.h"
 #include "cpu/ports.h"
@@ -16,8 +26,11 @@ int get_offset_col(int offset);
  **********************************************************/
 
 /**
- * Print a message on the specified location
- * If col, row, are negative, we will use the current offset
+ * @brief      Prints a message at the specified location
+ *
+ * @param      message  The message
+ * @param[in]  col      The column
+ * @param[in]  row      The row
  */
 void kprint_at(char *message, int col, int row) {
     /* Set cursor if col/row are negative */
@@ -40,15 +53,28 @@ void kprint_at(char *message, int col, int row) {
     }
 }
 
+/**
+ * @brief      Print a message, with a newline
+ *
+ * @param      message  The message
+ */
 void kprintn(char *message) {
     kprint(message);
     kprint("\n");
 }
 
+/**
+ * @brief      Print a message
+ *
+ * @param      message  The message
+ */
 void kprint(char *message) {
     kprint_at(message, -1, -1);
 }
 
+/**
+ * @brief      Print a backspace
+ */
 void kprint_backspace() {
     int offset = get_cursor_offset()-2;
     int row = get_offset_row(offset);

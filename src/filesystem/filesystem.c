@@ -1,3 +1,16 @@
+/**
+ * @defgroup   FILESYSTEM filesystem
+ *
+ * @brief      This file implements a FAT filesystem.
+ * 
+ * @par 
+ * Read and write from the filesystem using the read_file and write_file functions. The FAT table must be set up using load_fat_from_disk before reading and writing. 
+ * 
+ * @note       A prior version of the tedit stock program caused major issues, possible due to issues in either the filesystem or ATA driver.
+ * 
+ * @author     Valerie Whitmire
+ * @date       2023
+ */
 #include <stdint.h>
 #include <stddef.h>
 #include "filesystem/filesystem.h"
@@ -10,17 +23,17 @@
 #define FAT_LBA 65
 #define FIRST_DATA_LBA 75
 
-struct file {
-	char name[32];
-	uint32_t lba;
-	uint32_t length;  // In sectors
-	uint32_t magic;
-};
-
 struct file *fat_head;
 uint32_t num_registered_files;
 uint32_t first_free_sector;
 
+/**
+ * @brief      Gets a file.
+ *
+ * @param      name  The name of the file
+ *
+ * @return     The file index.
+ */
 uint8_t get_file(char* name) {
 	struct file *current = fat_head;
 	while(current->magic == 0xFFFFFFFF) {
@@ -30,25 +43,37 @@ uint8_t get_file(char* name) {
 	return 0;
 }
 
+/**
+ * @brief      Writes a file.
+ *
+ * @param      name        The name of the file
+ * @param      file_data   The file data
+ * @param[in]  size_bytes  The size of the file, in bytes
+ */
 void write_file(char* name, void *file_data, uint32_t size_bytes) {
 	if(get_file(name) != 0) return;
 
-	struct file *node = fat_head+num_registered_files;
+	struct file *node = fat_head+num_registered_files; // needs updating
 	uint32_t size_sectors = size_bytes/512;
 	if(size_sectors == 0) size_sectors = 1;
 
-	void* tfile = malloc(size_sectors*512);
-	memory_copy((uint8_t*)file_data, (uint8_t*)tfile, size_bytes);
 	memory_copy((uint8_t*)name, (uint8_t*)&(node->name), strlen(name)+1);
 	node->length = size_sectors;
 	node->lba = first_free_sector;
 	node->magic = 0xFFFFFFFF;
 	first_free_sector += size_sectors;
 
-	write_sectors_ATA_PIO(node->lba, size_sectors ,(uint16_t*)tfile);	
+	write_sectors_ATA_PIO(node->lba, size_sectors ,(uint16_t*)file_data);	
 	num_registered_files++;
 }
 
+/**
+ * @brief      Reads a file.
+ *
+ * @param      name  The name of the file
+ *
+ * @return     A void pointer to that file in memory
+ */
 void *read_file(char* name) {
 	uint8_t offset = get_file(name);
 	if(offset == 0) return NULL;
@@ -58,6 +83,10 @@ void *read_file(char* name) {
 	return return_file;
 } 
 
+/**
+ * @brief      Loads a FAT table from disk.
+ * @note       If no FAT table is present, it will attempt to initialize one.
+ */
 void load_fat_from_disk() {
 	fat_head = malloc(sizeof(uint8_t)*6*512);
 	read_sectors_ATA_PIO((uint32_t)fat_head, FAT_LBA, 6);
@@ -74,6 +103,9 @@ void load_fat_from_disk() {
 	}
 }
 
+/**
+ * @brief      Initializes the empty fat table to disk.
+ */
 void initialize_empty_fat_to_disk() {
 	fat_head = (struct file*)malloc(sizeof(struct file));
 	memory_copy((uint8_t*)&initial_node_name, (uint8_t*)&(fat_head->name), 9);
@@ -84,4 +116,13 @@ void initialize_empty_fat_to_disk() {
 	uint16_t* t_storage = malloc(sizeof(uint8_t)*32);
 	memory_copy((uint8_t*)fat_head, (uint8_t*)t_storage,sizeof(fat_head));
 	write_sectors_ATA_PIO(FAT_LBA, 2, (uint16_t*)fat_head);
+}
+
+/**
+ * @brief      Gets the file list.
+ *
+ * @return     The file list.
+ */
+struct file *get_files() {
+	return fat_head;
 }

@@ -1,3 +1,18 @@
+/**
+ * @defgroup   COMMANDS commands
+ *
+ * @brief      This file provides functionality to register and recall commands by passing in a string.
+ * 
+ * @par
+ * First, in the kernel initialization process, a command_block must be created. This serves as the head of a linked list containing all of the possible command pairs. Then, the head of that linked list, as well as the function pointer and the string that should call that function are passed into register_command in order to create the command.
+ * @par
+ * Then, just the linked list head and string can be passed into resolve_command  in order to retrieve the function pointer assocaited with the string.
+ * 
+ * @todo       Use macros to improve the readability of function pointers
+ *
+ * @author     Valerie Whitmire
+ * @date       2023
+ */
 #include <stdint.h>
 #include <stddef.h>
 #include "kernel/commands.h"
@@ -7,19 +22,12 @@
 void NULLFUNC(char* args) { return; }
 
 /**
- * Function: register_command
- * --------------------------
- * Registers a new command into the linked list of command blocks.
- * 
- * *command_resolver_head: the head of the command linked list. (&command_resolver_head)
- * *new_function         : a pointer to the function that should be associated with this command
- * function_call_string  : the string that, when resolved, will point to the new function
- * 
- * Returns: nothing
- * 
- * Example syntax: register_command(&command_resolver_head, END, "END");
- *                 registers END to the string "END" in the command list command_resovler_head
- **/
+ * @brief      Registers a new command into the linked list of command blocks.
+ *
+ * @param      command_resolver_head  The head of the command linked list.
+ * @param[in]  new_function           A pointer to the function that should be associated with this command
+ * @param      function_call_string   The string that, when resolved, will point to the new function
+ */
 void register_command(struct command_block *command_resolver_head, void (*new_function)(), char* function_call_string) {
 	struct command_block *current = command_resolver_head;
 	while(current->next != NULL) {
@@ -32,22 +40,16 @@ void register_command(struct command_block *command_resolver_head, void (*new_fu
 }
 
 /**
- * Function: resolve_command
- * -------------------------
- * Resolves a string into a function pointer
- * 
- * command_resolver_head: the head of the command linked list.
- * function_call_string : the string which is being resolved.
- * 
- * Returns: a function pointer which takes in a char* and returns void.
- *          if string cannot be resolved, the NULLFUNC is returned.
- * 
- * Example syntax: resolve_command(command_resolver_head, str_split(input, ' ')[0])(input);
- *                 resolves the first word in string `input` to a function, which is called with
- *                 args `input`.
- **/
+ * @brief      Resolves a string into a function pointer
+ *
+ * @param[in]  command_resolver_head  The head of the command linked list.
+ * @param      function_call_string   The string which is being resolved.
+ *
+ * @return     a function pointer which takes in a char* and returns void.
+ *             if string cannot be resolved, the NULLFUNC is returned.
+ */
 void (*resolve_command(struct command_block command_resolver_head, char* function_call_string))(char*) {
-	struct command_block current = command_resolver_head;
+    struct command_block current = command_resolver_head;
 	while(strcmp(current.call_string, function_call_string) != 0 && current.next != NULL) {
 		current = *current.next;
 	}

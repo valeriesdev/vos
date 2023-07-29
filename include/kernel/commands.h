@@ -3,6 +3,8 @@ void END(char *args);
 void PAGE(char *args);
 void ECHO(char *args); 
 void NULLFUNC(char *args);
+void LS(char *args);
+void HELP(char *args);
 
 struct command_block {
 	void (*function)();

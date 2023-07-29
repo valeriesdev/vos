@@ -1,4 +1,5 @@
-# ValerieOS
+Valerie OS                           {#mainpage}
+==========
 
 An operating system built over quite some time, largely based off of cfenollosa's tutorials.
 ## Features

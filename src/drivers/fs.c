@@ -1,3 +1,13 @@
+/**
+ * @defgroup   FS fs
+ * 
+ * @brief      This file implements file system.
+ *
+ * @deprecated Deprecated and unused, replaced by code in the src/filesystem directory
+ *
+ * @author     Valerie Whitmire
+ * @date       2023
+ */
 #include <stdint.h>
 #include "drivers/ata.h"
 #include "libc/mem.h"

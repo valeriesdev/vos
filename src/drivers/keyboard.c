@@ -1,3 +1,30 @@
+/**
+ * @defgroup   KEYBOARD keyboard
+ *
+ * @brief      This file implements a PS/2 keyboard driver.
+ * 
+ * @par
+ * To utilize the keyboard, a program must first establish and install a keyboard initializer. To create the initializer, the create_initializer function can be used. This initializer should then be passed to init_keboard.
+ * The keyboard initialization process is too convoluted and needs to be overhauled, and has several memory management issues.
+ * 
+ * To establish and install the keyboard initializer, follow the following example:
+ * @code
+ *  keybuffer = malloc(sizeof(char)*256);                      // Keystrokes will be stored here
+    uint8_t *keycodes = malloc(sizeof(uint8_t)*3);             // Memory management issue
+    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;  // Enter keycode, and two null keycodes
+    void (**gcallback_functions)() = malloc(sizeof(void*)*10); // Memory management issue
+    *gcallback_functions = example_function;                   // The function to be called upon "Enter" press
+    struct keyboard_initializer* keyboardi = create_initializer(keybuffer,
+                                                                1,
+                                                                keycodes,
+                                                                gcallback_functions,
+                                                                0x0);
+    init_keyboard(keyboardi);
+ * @endcode
+ *
+ * @author     Valerie Whitmire
+ * @date       2023
+ */
 #include <stdint.h>
 #include <stddef.h>
 #include "drivers/keyboard.h"
@@ -30,6 +57,19 @@ uint8_t keys_pressed[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                           0,0,0,0,0,0,0,0};
 
+struct keyboard_initializer *initializer;
+
+/**
+ * @brief      Creates a keyboard initializer
+ *
+ * @param      buffer_addr         The key buffer address
+ * @param[in]  n_callbacks         The number of key callbacks
+ * @param      keycodes            The keycodes of those callbacks
+ * @param[in]  gcallback_functions The functions whe callbacks should call
+ * @param[in]  gcallback           The gcallback
+ *
+ * @return     A pointer to the created keyboard initializer
+ */
 struct keyboard_initializer *create_initializer(char* buffer_addr,
                                                uint8_t n_callbacks,
                                                uint8_t *keycodes,
@@ -103,9 +143,16 @@ void reset_keyboard() {
     }
 }
 
+/**
+ * @brief      Initializes the keyboard.
+ *
+ * @param      nkey_initializer The keyboard initializer
+ */
 void init_keyboard(struct keyboard_initializer* nkey_initializer) {
-    reset_keyboard();
-    if(key_buffer != 0x0) free(key_buffer);
+    initializer = nkey_initializer;
+    //if(key_buffer != 0x0) free(key_buffer);
+    //reset_keyboard();
+    
     key_buffer = nkey_initializer->nkey_buffer;
 
     int i = 0;
@@ -117,7 +164,31 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer) {
     }
 
     if(nkey_initializer->general_callback == 0x0) 
-        register_interrupt_handler(IRQ1, default_keyboard_callback); 
+        register_interrupt_handler(IRQ1, default_keyboard_callback);
     else 
         register_interrupt_handler(IRQ1, nkey_initializer->general_callback);
+}
+
+/**
+ * @brief      Reads a line.
+ *
+ * @return     The line which has been read
+ */
+char* read_line() {
+    struct keyboard_initializer* old_initialzier = malloc(sizeof(struct keyboard_initializer));
+    memory_copy(initializer, old_initialzier, sizeof(struct keyboard_initializer));
+
+    line_keybuffer = malloc(sizeof(char)*256);
+    uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
+    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
+    void (**gcallback_functions)() = malloc(sizeof(void*)*10); // memory leak?
+    *gcallback_functions = user_input;
+    struct keyboard_initializer* keyboardi = create_initializer(line_keybuffer,
+                                                                1,
+                                                                keycodes,
+                                                                gcallback_functions,
+                                                                0x0);
+    init_keyboard(keyboardi);
+
+    init_keyboard(old_initializer);
 }
