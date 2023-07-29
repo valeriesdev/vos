@@ -4,13 +4,17 @@ Valerie OS                           {#mainpage}
 An operating system built over quite some time, largely based off of cfenollosa's tutorials.
 ## Features
  - [X] Bootloader
- - [X] Graphics Driver
+ - [X] Text-Based Graphics Driver
  - [X] Keyboard Driver
  - [X] Memory Allocator
  - [X] Expandable C Kernel
  - [X] Hard Disk Reading
+ - [X] File System 
  - [ ] Modular interface for programs
  - [ ] C Compiler
  - [ ] Text Editor (in progress)
- - [X] File System 
  - [ ] Convert from makefile to CMake
+ - [ ] Pixel-Based Graphics Driver
+ - [ ] GUI
+ - [ ] Multitasking
+ - [ ] Barebones Capability
