@@ -175,10 +175,10 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer) {
  * @return     The line which has been read
  */
 char* read_line() {
-    struct keyboard_initializer* old_initialzier = malloc(sizeof(struct keyboard_initializer));
-    memory_copy(initializer, old_initialzier, sizeof(struct keyboard_initializer));
+    struct keyboard_initializer* old_initializer = malloc(sizeof(struct keyboard_initializer));
+    memory_copy(initializer, old_initializer, sizeof(struct keyboard_initializer));
 
-    line_keybuffer = malloc(sizeof(char)*256);
+    char *line_keybuffer = malloc(sizeof(char)*256);
     uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
     keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
     void (**gcallback_functions)() = malloc(sizeof(void*)*10); // memory leak?
@@ -189,6 +189,5 @@ char* read_line() {
                                                                 gcallback_functions,
                                                                 0x0);
     init_keyboard(keyboardi);
-
     init_keyboard(old_initializer);
 }
