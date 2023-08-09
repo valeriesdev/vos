@@ -51,6 +51,7 @@ void kernel_main() {
     write_file(tfile_name, exfiledata, s);*/
     while(1) {
         if(next_function != NULL) {
+            kprint("\n");
             next_function(key_buffer);
             next_function = NULL;
             kprint("> ");
@@ -60,7 +61,6 @@ void kernel_main() {
 }
 
 void user_input(char *input) {
-    kprint("\n");
     next_function = resolve_command(*command_resolver_head, str_split(key_buffer, ' ')[0]);
 }
 

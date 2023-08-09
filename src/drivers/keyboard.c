@@ -41,6 +41,7 @@ struct key_callback key_callbacks[10];
 char* key_buffer;
 uint8_t c_key;
 uint32_t keypresses = 0;
+uint8_t special_key_behavior = 0;
 
 const char ascii[] =       {'?','?','1','2','3','4','5','6','7','8','9',
                             '0','-','=','?','?','q','w','e','r','t',
@@ -126,7 +127,7 @@ void default_keyboard_callback(registers_t *regs) {
             kprint_backspace();
         } else if (scancode == LSHIFTP) {
         } else if (scancode == RSHIFTP) {
-        } else if (scancode == 0x1C   ) {
+        } else if (scancode == 0x1C && special_key_behavior) {
             append(key_buffer, 0x1C); 
         } else {                                                    
             char letter = (keys_pressed[0x2A] || keys_pressed[0x36]) ? ascii_shift[(int) scancode] : ascii[(int) scancode];
@@ -169,21 +170,27 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer) {
         key_callbacks[i].key_3 = nkey_initializer->callback_keycodes[i*3+2];
         key_callbacks[i].callback = nkey_initializer->callback_functions[i];
     }
-
-    if(nkey_initializer->general_callback == 0x0) 
+    if(nkey_initializer->general_callback == 0x0)  {
         register_interrupt_handler(IRQ1, default_keyboard_callback);
-    else 
+        special_key_behavior = 0;
+    } else if(nkey_initializer->general_callback == 0x1) {
+        register_interrupt_handler(IRQ1, default_keyboard_callback);
+        special_key_behavior = 1;
+    } else {
         register_interrupt_handler(IRQ1, nkey_initializer->general_callback);
+        special_key_behavior = 0;
+    }
 }
 
 /**
  * @brief      Reads a line.
  *
  * @return     The line which has been read
+ * @todo       Implement dynamic keyboard initializer resets
  */
 char* read_line() {
-    struct keyboard_initializer* old_initializer = malloc(sizeof(struct keyboard_initializer));
-    memory_copy(initializer, old_initializer, sizeof(struct keyboard_initializer));
+    //struct keyboard_initializer* old_initializer = malloc(sizeof(struct keyboard_initializer));
+    //memory_copy(initializer, old_initializer, sizeof(struct keyboard_initializer));
 
     char *line_keybuffer = malloc(sizeof(char)*256);
     uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
@@ -194,7 +201,7 @@ char* read_line() {
                                                                 1,
                                                                 keycodes,
                                                                 gcallback_functions,
-                                                                0x0);
+                                                                0x1);
     init_keyboard(keyboardi);
     while(1) {
         if(character_exists(0x1C, line_keybuffer) > -1) break;
@@ -202,7 +209,9 @@ char* read_line() {
     append(line_keybuffer, '\0');
     char * return_value = malloc(sizeof(char) * strlen(line_keybuffer));
     memory_copy(line_keybuffer, return_value, sizeof(char) * strlen(line_keybuffer));
-    init_keyboard(old_initializer);
+
+    //init_keyboard(old_initializer);
+    kernel_init_keyboard();
     return_value[strlen(return_value)-1] = '\0';
     return return_value;
 }
