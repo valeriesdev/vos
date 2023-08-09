@@ -50,3 +50,4 @@ struct keyboard_initializer *create_initializer(char* buffer_addr,
                                                uint8_t *keycodes,
                                                void (**gcallback_functions)(),
                                                void (*gcallback)());
+char* read_line();

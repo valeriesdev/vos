@@ -2,12 +2,15 @@
 #include "cpu/isr.h"
 #include "cpu/ports.h"
 #include "libc/function.h"
+#include "drivers/screen.h" // remove
+#include "libc/string.h" // remove
 
 uint32_t tick = 0;
 
 static void timer_callback(registers_t *regs) {
     tick++;
     UNUSED(regs);
+    kprintn(int_to_ascii(tick));
 }
 
 void init_timer(uint32_t freq) {

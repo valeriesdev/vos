@@ -1,5 +1,5 @@
 #include "cpu/ports.h"
-
+#include "libc/string.h"
 /**
  * Read a byte from the specified port
  */

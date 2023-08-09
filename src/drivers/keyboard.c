@@ -38,6 +38,8 @@
 
 struct key_callback key_callbacks[10];
 char* key_buffer;
+uint8_t c_key;
+uint32_t keypresses = 0;
 
 const char ascii[] =       {'?','?','1','2','3','4','5','6','7','8','9',
                             '0','-','=','?','?','q','w','e','r','t',
@@ -108,13 +110,16 @@ int attempt_key_callbacks() {
 }
 
 void default_keyboard_callback(registers_t *regs) { 
+    keypresses++;
     uint8_t scancode = port_byte_in(0x60);
+    c_key = scancode;
 
     if(scancode < 0x81) keys_pressed[scancode] = 1;
     else                keys_pressed[scancode-0x80] = 0;
 
-    int found_callback = attempt_key_callbacks();
 
+    int found_callback = attempt_key_callbacks();
+    c_key = (char) found_callback;
     if(!found_callback && scancode < 0x81) {
         if (scancode == BACKSPACE) {
             backspace(key_buffer);
@@ -175,6 +180,7 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer) {
  * @return     The line which has been read
  */
 char* read_line() {
+    /*//*destination = '\0';
     struct keyboard_initializer* old_initializer = malloc(sizeof(struct keyboard_initializer));
     memory_copy(initializer, old_initializer, sizeof(struct keyboard_initializer));
 
@@ -182,12 +188,18 @@ char* read_line() {
     uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
     keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
     void (**gcallback_functions)() = malloc(sizeof(void*)*10); // memory leak?
-    *gcallback_functions = user_input;
+    *gcallback_functions = read_line;
     struct keyboard_initializer* keyboardi = create_initializer(line_keybuffer,
                                                                 1,
                                                                 keycodes,
                                                                 gcallback_functions,
                                                                 0x0);
     init_keyboard(keyboardi);
-    init_keyboard(old_initializer);
+    return line_keybuffer;*/
+
+    uint8_t scancode = port_byte_in(0x60);
+    while(scancode != 46) {
+        scancode = port_byte_in(0x60);
+    }
+    kprintn("zzzz");
 }

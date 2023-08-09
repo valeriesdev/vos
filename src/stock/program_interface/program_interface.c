@@ -49,9 +49,14 @@ void initialize() {
 	initialize_keyboard();
 
 	clear_screen();
-	//kprintn("Hello World!");
+
 	struct popup_msg_struct* s = malloc(sizeof(struct popup_msg_struct));
 	*s = (struct popup_msg_struct) {5,20,5,15,6,"Popup!"};
 	create_popup(0, s);
+	free(s);
+
+	struct popup_str_struct* z = malloc(sizeof(struct popup_str_struct));
+	*z = (struct popup_str_struct) {5,20,5,15,6,"Popup!", 12, "null"};
+	create_popup(1, z);
 	free(s);
 }

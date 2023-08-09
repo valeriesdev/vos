@@ -42,6 +42,10 @@ void kernel_main() {
     register_command(command_resolver_head, LS, "ls");
     register_command(command_resolver_head, HELP, "help");
 
+    kprintn("zz");
+    port_byte_in(0x60);
+    kprintn("kk");
+
     /*char* tfile_name = "HELLO_WORLD.TXT";
     char* exfiledata = "HELLO WORLD\nTHIS IS AN EXAMPLE FILE!!!!\nYAY!!!!\n";
     uint8_t s = 49;

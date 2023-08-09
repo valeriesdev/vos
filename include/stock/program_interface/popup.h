@@ -1,4 +1,4 @@
-void create_popup(uint8_t type, void* callback);
+char* create_popup(uint8_t type, void* callback);
 struct popup_msg_struct {
 	int x1;
 	int x2;
