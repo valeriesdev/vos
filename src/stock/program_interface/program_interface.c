@@ -56,7 +56,7 @@ void initialize() {
 	free(s);
 
 	struct popup_str_struct* z = malloc(sizeof(struct popup_str_struct));
-	*z = (struct popup_str_struct) {5,20,5,15,6,"Popup!", 12, "null"};
-	create_popup(1, z);
+	*z = (struct popup_str_struct) {5,20,5,15,6,"Popup!", 12, NULL};
+	char * ret_val = create_popup(1, z);
 	free(s);
 }

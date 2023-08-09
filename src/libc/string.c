@@ -135,3 +135,13 @@ char** str_split(char* a_str, const char a_delim) {
     output[count][j] = '\0';
     return output;
 }
+
+int8_t character_exists(char char_to_find, char* string_to_search) {
+    char* z = string_to_search;
+    uint32_t d = 0;
+    while(z[d] != 0) {
+        char str[2] = {z[d], '\0'}; 
+        if(z[d++] == char_to_find) return d;
+    }
+    return -1;
+}

@@ -16,5 +16,5 @@ struct popup_str_struct {
 	int str_size;
 	char* message;
 	int ret_str_size;
-	char* ret_str;
+	char** ret_str;
 };

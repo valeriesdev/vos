@@ -35,6 +35,7 @@
 #include "libc/function.h"
 #include "kernel/kernel.h"
 #include "libc/mem.h"
+#include "cpu/timer.h"
 
 struct key_callback key_callbacks[10];
 char* key_buffer;
@@ -117,7 +118,6 @@ void default_keyboard_callback(registers_t *regs) {
     if(scancode < 0x81) keys_pressed[scancode] = 1;
     else                keys_pressed[scancode-0x80] = 0;
 
-
     int found_callback = attempt_key_callbacks();
     c_key = (char) found_callback;
     if(!found_callback && scancode < 0x81) {
@@ -126,6 +126,8 @@ void default_keyboard_callback(registers_t *regs) {
             kprint_backspace();
         } else if (scancode == LSHIFTP) {
         } else if (scancode == RSHIFTP) {
+        } else if (scancode == 0x1C   ) {
+            append(key_buffer, 0x1C); 
         } else {                                                    
             char letter = (keys_pressed[0x2A] || keys_pressed[0x36]) ? ascii_shift[(int) scancode] : ascii[(int) scancode];
             char str[2] = {letter, '\0'}; 
@@ -180,13 +182,12 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer) {
  * @return     The line which has been read
  */
 char* read_line() {
-    /*//*destination = '\0';
     struct keyboard_initializer* old_initializer = malloc(sizeof(struct keyboard_initializer));
     memory_copy(initializer, old_initializer, sizeof(struct keyboard_initializer));
 
     char *line_keybuffer = malloc(sizeof(char)*256);
     uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
-    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
+    keycodes[0] = 0x0; keycodes[1] = 0x0; keycodes[2] = 0x0;
     void (**gcallback_functions)() = malloc(sizeof(void*)*10); // memory leak?
     *gcallback_functions = read_line;
     struct keyboard_initializer* keyboardi = create_initializer(line_keybuffer,
@@ -195,11 +196,13 @@ char* read_line() {
                                                                 gcallback_functions,
                                                                 0x0);
     init_keyboard(keyboardi);
-    return line_keybuffer;*/
-
-    uint8_t scancode = port_byte_in(0x60);
-    while(scancode != 46) {
-        scancode = port_byte_in(0x60);
+    while(1) {
+        if(character_exists(0x1C, line_keybuffer) > -1) break;
     }
-    kprintn("zzzz");
+    append(line_keybuffer, '\0');
+    char * return_value = malloc(sizeof(char) * strlen(line_keybuffer));
+    memory_copy(line_keybuffer, return_value, sizeof(char) * strlen(line_keybuffer));
+    init_keyboard(old_initializer);
+    return_value[strlen(return_value)-1] = '\0';
+    return return_value;
 }

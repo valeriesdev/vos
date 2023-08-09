@@ -17,9 +17,12 @@
 #include "stock/program_interface/program_interface.h"
 #include "filesystem/filesystem.h"
 #include "drivers/keyboard.h"
+#include "cpu/timer.h"
 
 struct command_block *command_resolver_head;
 char **lkeybuffer;
+
+void (*next_function)(char**) = NULL;
 
 void kernel_main() {
     initialize_memory();
@@ -42,22 +45,23 @@ void kernel_main() {
     register_command(command_resolver_head, LS, "ls");
     register_command(command_resolver_head, HELP, "help");
 
-    kprintn("zz");
-    port_byte_in(0x60);
-    kprintn("kk");
-
     /*char* tfile_name = "HELLO_WORLD.TXT";
     char* exfiledata = "HELLO WORLD\nTHIS IS AN EXAMPLE FILE!!!!\nYAY!!!!\n";
     uint8_t s = 49;
     write_file(tfile_name, exfiledata, s);*/
+    while(1) {
+        if(next_function != NULL) {
+            next_function(key_buffer);
+            next_function = NULL;
+            kprint("> ");
+            key_buffer[0] = '\0';
+        }
+    }
 }
 
 void user_input(char *input) {
     kprint("\n");
-    resolve_command(*command_resolver_head, str_split(key_buffer, ' ')[0])(key_buffer);
-    kprint("> ");
-
-    key_buffer[0] = '\0';
+    next_function = resolve_command(*command_resolver_head, str_split(key_buffer, ' ')[0]);
 }
 
 void kernel_init_keyboard() {

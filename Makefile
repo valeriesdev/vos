@@ -7,7 +7,7 @@ CC = /usr/local/i386elfgcc/bin/i386-elf-gcc
 GDB = gdb
 LD = /usr/local/i386elfgcc/bin/i386-elf-ld
 LDOBJ = /usr/local/i386elfgcc/bin/i386-elf-objcopy
-CFLAGS = -g -ffreestanding -Wall -Wextra -Wno-unused-parameter -fno-exceptions -m32 -Iinclude -fvar-tracking
+CFLAGS = -g -O0 -ffreestanding -Wall -Wextra -Wno-unused-parameter -fno-exceptions -m32 -Iinclude -fvar-tracking
 
 binary/os-image.bin: binary/bootsect.bin binary/kernel.bin
 	cat $^ > binary/os-image.bin
@@ -24,7 +24,7 @@ run: binary/os-image.bin
 	qemu-system-i386 -s -device piix3-ide,id=ide -drive id=disk,file=binary/os-image.bin,format=raw,if=none -device ide-hd,drive=disk,bus=ide.0 -d guest_errors,int
 
 debug: binary/os-image.bin binary/kernel.elf
-	qemu-system-i386 -s -device piix3-ide,id=ide -drive id=disk,file=binary/os-image.bin,format=raw,if=none -device ide-hd,drive=disk,bus=ide.0 -d guest_errors,int &
+	qemu-system-i386 -s -device piix3-ide,id=ide -drive id=disk,file=binary/os-image.bin,format=raw,if=none -device ide-hd,drive=disk,bus=ide.0 -d guest_errors,int -machine kernel-irqchip=of &
 	${GDB} -ex "target remote localhost:1234" -ex "symbol-file binary/kernel.elf"
 
 binary/%.o: %.c

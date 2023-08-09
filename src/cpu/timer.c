@@ -2,15 +2,16 @@
 #include "cpu/isr.h"
 #include "cpu/ports.h"
 #include "libc/function.h"
-#include "drivers/screen.h" // remove
-#include "libc/string.h" // remove
 
-uint32_t tick = 0;
+// debugging
+#include "drivers/screen.h"
+#include "libc/string.h"
+
+volatile uint32_t tick = 0;
 
 static void timer_callback(registers_t *regs) {
     tick++;
     UNUSED(regs);
-    kprintn(int_to_ascii(tick));
 }
 
 void init_timer(uint32_t freq) {
@@ -27,3 +28,11 @@ void init_timer(uint32_t freq) {
     port_byte_out(0x40, high);
 }
 
+void wait_ticks(uint32_t n_ticks) {
+    uint32_t s_tick = tick;
+    while(tick-s_tick < n_ticks) {
+        //kprint(int_to_ascii(n_ticks));
+        //kprint(" ");
+        //kprintn(int_to_ascii(tick-s_tick));
+    }
+}

@@ -1,3 +1,6 @@
+/**
+ * DEPRECATED
+ **/
 #include "cpu/idt.h"
 #include "cpu/type.h"
 
