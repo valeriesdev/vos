@@ -7,7 +7,8 @@ CC = /usr/local/i386elfgcc/bin/i386-elf-gcc
 GDB = gdb
 LD = /usr/local/i386elfgcc/bin/i386-elf-ld
 LDOBJ = /usr/local/i386elfgcc/bin/i386-elf-objcopy
-CFLAGS = -g -O0 -ffreestanding -Wall -Wextra -Wno-unused-parameter -fno-exceptions -m32 -Iinclude -fvar-tracking
+#CFLAGS = -g -O0 -ffreestanding -Wall -Wextra -Wno-unused-parameter -fno-exceptions -m32 -Iinclude -fvar-tracking
+CFLAGS = -g -O0 -ffreestanding -Wall -Wextra -m32 -Iinclude -fvar-tracking
 
 binary/os-image.bin: binary/bootsect.bin binary/kernel.bin
 	cat $^ > binary/os-image.bin

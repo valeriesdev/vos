@@ -1,5 +1,9 @@
 /**
+ * @defgroup   DRIVERS drivers
+ */
+/**
  * @defgroup   ATA ata
+ * @ingroup    DRIVERS
  *
  * @brief      This file implements a driver to read and write from the hard disk using ATA.
  * 
@@ -47,6 +51,7 @@ static void ATA_wait_RDY();
 
 /**
  * @brief      Reads sectors from the hard disk through ATA PIO method
+ * @ingroup    ATA
  *
  * @param[in]  target_address  The address to read the data into
  * @param[in]  LBA             The logical block address to read from
@@ -83,12 +88,12 @@ void read_sectors_ATA_PIO(uint32_t target_address, uint32_t LBA, uint8_t sector_
 
 /**
  * @brief      Writes sectors to the hard disk through ATA PIO method
+ * @ingroup    ATA
  *
  * @param[in]  LBA           The logical block address to write to
  * @param[in]  sector_count  How many sectors to write
  * @param      bytes         Array of the bytes to be written
  * 
- * @code
  */
 void write_sectors_ATA_PIO(uint32_t LBA, uint8_t sector_count, uint16_t* bytes) {
     ATA_wait_BSY();
@@ -112,6 +117,7 @@ void write_sectors_ATA_PIO(uint32_t LBA, uint8_t sector_count, uint16_t* bytes) 
 
 /**
  * @brief Loops until ATA Busy port is not true
+ * @ingroup    ATA
  **/
 static void ATA_wait_BSY() {
     while(port_byte_in(ATA_STATUS_COMMAND)&STATUS_BSY);
@@ -119,6 +125,7 @@ static void ATA_wait_BSY() {
 
 /**
  * @brief Loops until ATA Ready port is true
+ * @ingroup    ATA
  **/
 static void ATA_wait_RDY() {
     while(!(port_byte_in(ATA_STATUS_COMMAND)&STATUS_RDY));

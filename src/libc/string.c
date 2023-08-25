@@ -1,33 +1,51 @@
+/**
+ * @defgroup   STRING string
+ * @ingroup    LIBC
+ *
+ * @brief      This file implements string functions.
+ * @par
+ * Most functions are either directly from or derived from Kernighan and Ritchie's The C Programming Language (2nd edition). If so, their source is labeled.
+ * @author     Valerie Whitmire
+ * @date       2023
+ */
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include "drivers/screen.h"
 #include "libc/string.h"
 #include "libc/mem.h"
+#include "libc/math.h"
 
 /**
- * K&R implementation
+ * K&R, page 64
  */
 char* int_to_ascii(int n) {
-    char *str = "";
     int i, sign;
-    if ((sign = n) < 0) n = -n;
+    char* str = malloc(sizeof(char)* (logi(n, 10) > 1) ? logi(n, 10) : 1);
+
+    if ((sign = n) < 0)           /* record sign */
+        n = -n;                   /* make n positive */
     i = 0;
-    do {
-        str[i++] = n % 10 + '0';
-    } while ((n /= 10) > 0);
-
-    if (sign < 0) str[i++] = '-';
+    do {                          /* generate digits in reverse order */
+        str[i++] = n % 10 + '0';  /* get next digit */
+    } while ((n /= 10) > 0);      /* delete it */
+    if (sign < 0)
+        str[i++] = '-';
     str[i] = '\0';
-
     reverse(str);
     return str;
 }
 
-//needs to be entirely reworked.
-// the way it deals with memory is very unsafe and prone to overwrites
-// it needs to be inplace, most likely pass in a char* to save into
-// 
+/**
+ * @brief      Converts an int to ascii hex format
+ *
+ * @param[in]  n     The integer to be converted
+ *
+ * @return     A char* with the ascii hex string
+ * 
+ * @todo       Completely rework function to operate in-place, if possible.
+ * @note       Requires the use of malloc, so it cannot be used before the memory has been initialized.
+ */
 char* hex_to_ascii(int n) {
     char *str = malloc(sizeof(char)*12); // needs to be replaced with inplace
     str[0] = '\0';
@@ -87,6 +105,14 @@ int strcmp(char s1[], char s2[]) {
     return s1[i] - s2[i];
 }
 
+/**
+ * @brief      Returns a char** containing all substrings of a_str split by a_delim
+ *
+ * @param      a_str    String to split
+ * @param[in]  a_delim  Delimiter to split string by
+ *
+ * @return     char** containing all substrings. <b>char** and each char* must be freed</b>
+ */
 char** str_split(char* a_str, const char a_delim) {
     int count = 0;
     char current = a_str[0];
@@ -140,7 +166,6 @@ int8_t character_exists(char char_to_find, char* string_to_search) {
     char* z = string_to_search;
     uint32_t d = 0;
     while(z[d] != 0) {
-        char str[2] = {z[d], '\0'}; 
         if(z[d++] == char_to_find) return d;
     }
     return -1;

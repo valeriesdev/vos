@@ -1,3 +1,6 @@
+#ifndef FILESYSTEM_H
+#define FILESYSTEM_H
+
 struct file {
 	char name[32];
 	uint32_t lba;
@@ -11,3 +14,5 @@ void write_file(char* name, void *file_data, uint32_t size_bytes);
 void *read_file(char* name);
 struct file *get_files();
 uint8_t get_file(char* name);
+
+#endif

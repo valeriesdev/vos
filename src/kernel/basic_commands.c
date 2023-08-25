@@ -61,4 +61,6 @@ void HELP(char *args) {
 		kprintn(t.call_string);
 		t = *t.next;
 	}
+
+	UNUSED(args);
 }

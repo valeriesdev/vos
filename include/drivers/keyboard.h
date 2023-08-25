@@ -1,3 +1,6 @@
+#ifndef KEYBOARD_H
+#define KEYBOARD_H
+
 #define BACKSPACE 0x0E
 #define ENTER 0x1C
 #define SC_MAX 114
@@ -51,3 +54,7 @@ struct keyboard_initializer *create_initializer(char* buffer_addr,
                                                void (**gcallback_functions)(),
                                                void (*gcallback)());
 char* read_line();
+char* get_keybuffer();
+void await_keypress();
+
+#endif

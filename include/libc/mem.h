@@ -1,3 +1,6 @@
+#ifndef MEM_H
+#define MEM_H
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -8,3 +11,5 @@ void initialize_memory();
 void free(void* address);
 void *find_free(size_t n);
 void traverse();
+
+#endif

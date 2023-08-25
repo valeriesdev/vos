@@ -1,3 +1,6 @@
+#ifndef POPUP_H
+#define POPUP_H
+
 char* create_popup(uint8_t type, void* callback);
 struct popup_msg_struct {
 	int x1;
@@ -18,3 +21,5 @@ struct popup_str_struct {
 	int ret_str_size;
 	char** ret_str;
 };
+
+#endif

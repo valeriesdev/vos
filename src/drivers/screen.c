@@ -1,6 +1,6 @@
 /**
  * @defgroup   SCREEN screen
- *
+ * @ingroup    DRIVERS
  * @brief      This file implements a screen driver.
  * 
  * @todo       Implement stock features such as drawing boxes.
@@ -8,6 +8,7 @@
  * @author     Valerie Whitmire
  * @date       2023
  */
+
 #include <stdint.h>
 #include "drivers/screen.h"
 #include "cpu/ports.h"
@@ -27,7 +28,7 @@ int get_offset_col(int offset);
 
 /**
  * @brief      Prints a message at the specified location
- *
+ * @ingroup    SCREEN
  * @param      message  The message
  * @param[in]  col      The column
  * @param[in]  row      The row
@@ -55,7 +56,7 @@ void kprint_at(char *message, int col, int row) {
 
 /**
  * @brief      Print a message, with a newline
- *
+ * @ingroup    SCREEN
  * @param      message  The message
  */
 void kprintn(char *message) {
@@ -65,7 +66,7 @@ void kprintn(char *message) {
 
 /**
  * @brief      Print a message
- *
+ * @ingroup    SCREEN
  * @param      message  The message
  */
 void kprint(char *message) {
@@ -74,12 +75,21 @@ void kprint(char *message) {
 
 /**
  * @brief      Print a backspace
+ * @ingroup    SCREEN
  */
 void kprint_backspace() {
     int offset = get_cursor_offset()-2;
     int row = get_offset_row(offset);
     int col = get_offset_col(offset);
     print_char(0x08, col, row, WHITE_ON_BLACK);
+}
+
+/**
+ * @brief      Gets the video memory.
+ * @ingroup    SCREEN
+ */
+void* get_video_memory() {
+    return (uint8_t*) VIDEO_ADDRESS;
 }
 
 

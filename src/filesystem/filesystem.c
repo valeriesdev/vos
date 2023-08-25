@@ -29,7 +29,7 @@ uint32_t first_free_sector;
 
 /**
  * @brief      Gets a file.
- *
+ * @ingroup    FILESYSTEM
  * @param      name  The name of the file
  *
  * @return     The file index.
@@ -45,7 +45,7 @@ uint8_t get_file(char* name) {
 
 /**
  * @brief      Writes a file.
- *
+ * @ingroup    FILESYSTEM
  * @param      name        The name of the file
  * @param      file_data   The file data
  * @param[in]  size_bytes  The size of the file, in bytes
@@ -69,10 +69,10 @@ void write_file(char* name, void *file_data, uint32_t size_bytes) {
 
 /**
  * @brief      Reads a file.
- *
+ * @ingroup    FILESYSTEM
  * @param      name  The name of the file
  *
- * @return     A void pointer to that file in memory
+ * @return     A void pointer to that file in memory. <b>Must be free'd</b>
  */
 void *read_file(char* name) {
 	uint8_t offset = get_file(name);
@@ -85,10 +85,11 @@ void *read_file(char* name) {
 
 /**
  * @brief      Loads a FAT table from disk.
+ * @ingroup    FILESYSTEM
  * @note       If no FAT table is present, it will attempt to initialize one.
  */
 void load_fat_from_disk() {
-	fat_head = malloc(sizeof(uint8_t)*6*512);
+	fat_head = malloc(sizeof(uint8_t)*6*512); // Free handled
 	read_sectors_ATA_PIO((uint32_t)fat_head, FAT_LBA, 6);
 
 	if(fat_head->magic != 0xFFFFFFFF) {
@@ -105,6 +106,8 @@ void load_fat_from_disk() {
 
 /**
  * @brief      Initializes the empty fat table to disk.
+ * @ingroup    FILESYSTEM
+ * @todo       Fix fat_head and t_storage free behavior
  */
 void initialize_empty_fat_to_disk() {
 	fat_head = (struct file*)malloc(sizeof(struct file));
@@ -120,7 +123,7 @@ void initialize_empty_fat_to_disk() {
 
 /**
  * @brief      Gets the file list.
- *
+ * @ingroup    FILESYSTEM
  * @return     The file list.
  */
 struct file *get_files() {

@@ -17,13 +17,14 @@
 #include <stddef.h>
 #include "kernel/commands.h"
 #include "libc/string.h"
-#include "drivers/screen.h"
+#include "libc/function.h"
 #include "libc/mem.h"
-void NULLFUNC(char* args) { return; }
+#include "drivers/screen.h"
+void NULLFUNC(char* args) { UNUSED(args); return; }
 
 /**
  * @brief      Registers a new command into the linked list of command blocks.
- *
+ * @ingroup    COMMANDS
  * @param      command_resolver_head  The head of the command linked list.
  * @param[in]  new_function           A pointer to the function that should be associated with this command
  * @param      function_call_string   The string that, when resolved, will point to the new function
@@ -34,14 +35,14 @@ void register_command(struct command_block *command_resolver_head, void (*new_fu
 		current = current->next;
 	}
 
-	struct command_block *command_block_new = malloc(sizeof(struct command_block));
+	struct command_block *command_block_new = malloc(sizeof(struct command_block)); // Does not need to be freed; should always stay in memory
 	*command_block_new = (struct command_block) {.function = new_function, .call_string = function_call_string, .next = NULL};
 	current->next = command_block_new;
 }
 
 /**
  * @brief      Resolves a string into a function pointer
- *
+ * @ingroup    COMMANDS
  * @param[in]  command_resolver_head  The head of the command linked list.
  * @param      function_call_string   The string which is being resolved.
  *

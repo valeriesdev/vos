@@ -1,5 +1,6 @@
 /**
- * @defgroup   MEM memory
+ * @defgroup   MEM mem
+ * @ingroup    LIBC
  *
  * @brief      This file implements a memory management system.
  * 
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include "libc/mem.h"
 #include "libc/string.h"
+#include "libc/function.h"
 #include "drivers/screen.h"
 #define TRUE 1
 #define FALSE 0
@@ -67,6 +69,7 @@ inline size_t align(size_t n) {
 }
 
 void print_node(struct block *current) {
+	UNUSED(current);
 	/*kprint("ADDR: ");
 	kprint(hex_to_ascii((int) current));
 	kprint(", SIZE:");

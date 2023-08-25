@@ -4,8 +4,9 @@
 #include "drivers/screen.h"
 #include "kernel/kernel.h"
 #include "libc/mem.h"
+#include "libc/string.h"
 #include "filesystem/filesystem.h"
-#include "stock/program_interface/program_interface.h"
+#include "stock/tedit/tedit.h"
 #include "stock/program_interface/popup.h"
 
 // Functions
@@ -52,12 +53,22 @@ static void initialize() {
 	clear_screen();
 
 	struct popup_str_struct* z = malloc(sizeof(struct popup_str_struct));
-	*z = (struct popup_str_struct) {5,20,5,15,6,"Popup!!: ", 12, NULL};
+	*z = (struct popup_str_struct) {5,20,5,15,6,"Enter file name: ", 12, NULL};
 	char *file_name = create_popup(1, z);
-	kprintn(file_name);
 	free(z);
+	
+	struct file* files = get_files()+1;
+	while(files->magic == 0xFFFFFFFF) {
+		if(strcmp(files->name,file_name) == 0) break;
+		files++;
+	}
+	if(files->magic != 0xFFFFFFFF) {
+		// procedure for new file
+	} else {
+		// procedure for editing file
+	}
 }
 
-void program_launch() {
+void tedit() {
 	initialize();
 }
