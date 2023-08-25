@@ -46,6 +46,7 @@ ERR: a 1 indicates that an error occured. An error code has been placed in the e
 #define ATA_READ_SECTORS   0x20 // ATA Read Sectors Command
 #define ATA_WRITE_SECTORS  0x30 // ATA Write Sectors Command
 
+// Private function definitions
 static void ATA_wait_BSY();
 static void ATA_wait_RDY();
 

@@ -32,7 +32,7 @@ struct key_callback {
 	void (*callback)();
 };
 
-extern char *key_buffer;
+extern char *key_buffer; // need to remove
 
 /** Example to initialize the keyboard with one callback, for the enter key.
  *  uint8_t *keycodes = malloc(sizeof(uint8_t)*3);
@@ -47,7 +47,6 @@ extern char *key_buffer;
  *  init_keyboard(keyboardi);
   **/
 void init_keyboard(struct keyboard_initializer* nkey_initializer);
-int attempt_key_callbacks();
 struct keyboard_initializer *create_initializer(char* buffer_addr,
                                                uint8_t n_callbacks,
                                                uint8_t *keycodes,

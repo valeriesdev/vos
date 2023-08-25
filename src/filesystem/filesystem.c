@@ -23,6 +23,9 @@
 #define FAT_LBA 65
 #define FIRST_DATA_LBA 75
 
+// Private function definitions
+static void initialize_empty_fat_to_disk();
+
 struct file *fat_head;
 uint32_t num_registered_files;
 uint32_t first_free_sector;

@@ -14,17 +14,13 @@
 #include "cpu/ports.h"
 #include "libc/mem.h"
 
-/* Declaration of private functions */
-int get_cursor_offset();
-void set_cursor_offset(int offset);
-int print_char(char c, int col, int row, char attr);
-int get_offset(int col, int row);
-int get_offset_row(int offset);
-int get_offset_col(int offset);
-
-/**********************************************************
- * Public Kernel API functions                            *
- **********************************************************/
+// Private function declarations
+static int get_cursor_offset();
+static void set_cursor_offset(int offset);
+static int print_char(char c, int col, int row, char attr);
+static int get_offset(int col, int row);
+static int get_offset_row(int offset);
+static int get_offset_col(int offset);
 
 /**
  * @brief      Prints a message at the specified location
@@ -92,12 +88,6 @@ void* get_video_memory() {
     return (uint8_t*) VIDEO_ADDRESS;
 }
 
-
-/**********************************************************
- * Private kernel functions                               *
- **********************************************************/
-
-
 /**
  * Innermost print function for our kernel, directly accesses the video memory 
  *
@@ -106,7 +96,7 @@ void* get_video_memory() {
  * Returns the offset of the next character
  * Sets the video cursor to the returned offset
  */
-int print_char(char c, int col, int row, char attr) {
+static int print_char(char c, int col, int row, char attr) {
     uint8_t *vidmem = (uint8_t*) VIDEO_ADDRESS;
     if (!attr) attr = WHITE_ON_BLACK;
 
@@ -152,7 +142,7 @@ int print_char(char c, int col, int row, char attr) {
     return offset;
 }
 
-int get_cursor_offset() {
+static int get_cursor_offset() {
     /* Use the VGA ports to get the current cursor position
      * 1. Ask for high byte of the cursor offset (data 14)
      * 2. Ask for low byte (data 15)
@@ -164,7 +154,7 @@ int get_cursor_offset() {
     return offset * 2; /* Position * size of character cell */
 }
 
-void set_cursor_offset(int offset) {
+static void set_cursor_offset(int offset) {
     /* Similar to get_cursor_offset, but instead of reading we write data */
     offset /= 2;
     port_byte_out(REG_SCREEN_CTRL, 14);
@@ -185,7 +175,6 @@ void clear_screen() {
     set_cursor_offset(get_offset(0, 0));
 }
 
-
-int get_offset(int col, int row) { return 2 * (row * MAX_COLS + col); }
-int get_offset_row(int offset) { return offset / (2 * MAX_COLS); }
-int get_offset_col(int offset) { return (offset - (get_offset_row(offset)*2*MAX_COLS))/2; }
+static int get_offset(int col, int row) { return 2 * (row * MAX_COLS + col); }
+static int get_offset_row(int offset) { return offset / (2 * MAX_COLS); }
+static int get_offset_col(int offset) { return (offset - (get_offset_row(offset)*2*MAX_COLS))/2; }

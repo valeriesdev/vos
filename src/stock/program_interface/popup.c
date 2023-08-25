@@ -19,7 +19,11 @@
 #include "stock/program_interface/popup.h"
 #include "libc/string.h"
 
-char* create_popup_msg(struct popup_msg_struct* callback) {
+// Private function definitions
+static char* create_popup_msg(struct popup_msg_struct* callback);
+static char* create_popup_str(struct popup_str_struct* callback);
+
+static char* create_popup_msg(struct popup_msg_struct* callback) {
 	int i = 0;
 	for(i = 0; i < callback->x2 - callback->x1; ++i) kprint_at("-", callback->x1 + i, callback->y1);
 	for(i = 0; i < callback->x2 - callback->x1; ++i) kprint_at("-", callback->x1 + i, callback->y2);
@@ -33,7 +37,7 @@ char* create_popup_msg(struct popup_msg_struct* callback) {
 	return NULL;
 }
 
-char* create_popup_str(struct popup_str_struct* callback) {
+static char* create_popup_str(struct popup_str_struct* callback) {
 	int i = 0;
 	for(i = 0; i < callback->x2 - callback->x1; ++i) kprint_at("-", callback->x1 + i, callback->y1);
 	for(i = 0; i < callback->x2 - callback->x1; ++i) kprint_at("-", callback->x1 + i, callback->y2);

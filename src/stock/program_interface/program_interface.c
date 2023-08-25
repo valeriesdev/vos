@@ -8,7 +8,7 @@
 #include "stock/program_interface/program_interface.h"
 #include "stock/program_interface/popup.h"
 
-// Functions
+// Private function definitions
 static void initialize_keyboard();
 static void exit_program();
 static void initialize();

@@ -9,7 +9,5 @@ void memory_set(uint8_t *dest, uint8_t val, uint32_t len);
 void *malloc(uint32_t size);
 void initialize_memory();
 void free(void* address);
-void *find_free(size_t n);
-void traverse();
 
 #endif

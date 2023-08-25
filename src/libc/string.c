@@ -17,7 +17,7 @@
 #include "libc/math.h"
 
 /**
- * K&R, page 64
+ * K&R, section 3.6
  */
 char* int_to_ascii(int n) {
     int i, sign;
@@ -67,7 +67,8 @@ char* hex_to_ascii(int n) {
     return str;
 }
 
-/* K&R */
+/* K&R, section 3.5 */
+/* reverse: reverse string s in place */
 void reverse(char s[]) {
     int c, i, j;
     for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
@@ -77,10 +78,12 @@ void reverse(char s[]) {
     }
 }
 
-/* K&R */
+/* K&R, section 2.3 */
+/* strlen: return length of s */
 int strlen(char s[]) {
     int i = 0;
-    while (s[i] != '\0') ++i;
+    while (s[i] != '\0')
+        ++i;
     return i;
 }
 
@@ -95,14 +98,14 @@ void backspace(char s[]) {
     s[len-1] = '\0';
 }
 
-/* K&R 
- * Returns <0 if s1<s2, 0 if s1==s2, >0 if s1>s2 */
-int strcmp(char s1[], char s2[]) {
+/* K&R, section 5.5 */
+/* strcmp: return <0 if s<t, 0 if s==t, >0 if s>t */
+int strcmp(char *s, char *t) {
     int i;
-    for (i = 0; s1[i] == s2[i]; i++) {
-        if (s1[i] == '\0') return 0;
-    }
-    return s1[i] - s2[i];
+    for (i = 0; s[i] == t[i]; i++)
+        if (s[i] == '\0')
+            return 0;
+    return s[i] - t[i];
 }
 
 /**

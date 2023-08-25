@@ -37,6 +37,11 @@
 #include "libc/mem.h"
 #include "cpu/timer.h"
 
+// Private function definitions
+static int attempt_key_callbacks();
+static void default_keyboard_callback(registers_t *regs);
+static void reset_keyboard();
+
 /**
  * @brief   The keybuffer where all keypresses are stored
  * @note       The address changes whenever a new keyboard initializer is registered.
@@ -100,7 +105,7 @@ struct keyboard_initializer *create_initializer(char* buffer_addr,
     return returnvalue;
 }
 
-int attempt_key_callbacks() {
+static int attempt_key_callbacks() {
     int i = 0;
     int found_callback = 0;
     for(; i < 10; i++) {
@@ -117,7 +122,7 @@ int attempt_key_callbacks() {
     return found_callback;
 }
 
-void default_keyboard_callback(registers_t *regs) { 
+static void default_keyboard_callback(registers_t *regs) { 
     keypresses++;
     uint8_t scancode = port_byte_in(0x60);
     c_key = scancode;
@@ -146,7 +151,7 @@ void default_keyboard_callback(registers_t *regs) {
     UNUSED(regs);
 }
 
-void reset_keyboard() {
+static void reset_keyboard() {
     key_buffer = 0x0;
     int i = 0;
     for(; i < 10; i++) {
