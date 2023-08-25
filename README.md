@@ -19,4 +19,3 @@ An operating system built over quite some time, largely based off of cfenollosa'
  - [ ] GUI
  - [ ] Multitasking
  - [ ] Barebones Capability
- - [ ] Test
