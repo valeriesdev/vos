@@ -20,7 +20,7 @@ struct keyboard_initializer {
 	char* nkey_buffer;
     uint8_t num_callbacks;
     uint8_t callback_keycodes[30]; // 0-2 is callback 1, 3-5 is 2, 6-8 is 3, etc
-    void (**callback_functions)();    
+    void (*callback_functions[10])();    
     void (*general_callback)();
 };
 
@@ -47,11 +47,18 @@ extern char *key_buffer; // need to remove
  *  init_keyboard(keyboardi);
   **/
 void init_keyboard(struct keyboard_initializer* nkey_initializer);
-struct keyboard_initializer *create_initializer(char* buffer_addr,
+/*struct keyboard_initializer *create_initializer(char* buffer_addr,
                                                uint8_t n_callbacks,
                                                uint8_t *keycodes,
                                                void (**gcallback_functions)(),
                                                void (*gcallback)());
+*/
+struct keyboard_initializer *create_initializer(uint8_t n_callbacks,
+                                                uint8_t callbacks_k[],
+                                                void (*callbacks_f[])(),
+                                                uint8_t special_key_behavior,
+                                                void* keybuffer_addr);
+
 char* read_line();
 char* get_keybuffer();
 void await_keypress();

@@ -6,11 +6,24 @@
 // debugging
 #include "drivers/screen.h"
 #include "libc/string.h"
+#include "libc/mem.h"
 
 volatile uint32_t tick = 0;
 
 static void timer_callback(registers_t *regs) {
     tick++;
+
+    if(tick%25 == 0) {
+        char* string = hex_to_ascii(get_top());
+        kprint_at_preserve(string,0,0);
+        string = free(string);
+    }
+
+    if(tick%200 == 0) {
+    //    debug_traverse();
+    }
+
+
     UNUSED(regs);
 }
 

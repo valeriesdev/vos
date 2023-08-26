@@ -51,6 +51,19 @@ void kprint_at(char *message, int col, int row) {
 }
 
 /**
+ * @brief      Print a message at the specified location, preserving cursor position
+ * @ingroup    SCREEN
+ * @param      message  The message
+ * @param[in]  col      The col
+ * @param[in]  row      The row
+ */
+void kprint_at_preserve(char *message, int col, int row) {
+    int offset = get_cursor_offset();
+    kprint_at(message, col, row);
+    set_cursor_offset(offset);
+}
+
+/**
  * @brief      Print a message, with a newline
  * @ingroup    SCREEN
  * @param      message  The message

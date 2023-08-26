@@ -11,6 +11,7 @@
  * 		- malloc
  * 		- free
  * 		- initialize_memory
+ * 		- get_top
  * @note       initialize_memory needs to be called in the kernel initialization process 
  * 
  * The memory manager consists of a linked list of blocks. Each block has
@@ -26,7 +27,7 @@
  * Otherwise, if the unused block has room for the new size and a char:  Split the unused block in two and allocate the new block to the first, and mark the block used (used = 1). <br>
  * Otherwise, Allocate the new block to the unused block, and mark the block used.<br>
  * 		
- * When freeing a block, the block is simply marked unused.
+ * When freeing a block, the block is simply marked unused, unless it is the last block. If so, the block is deleted.
  * 
  * When returning the malloc'd block, or when freeing a block, the address returned/used is the address of data, so that pointers can be assigned directly to the return value of malloc. <br>
  * To free a block, the address used is stepped back until the magic number is valid (0x0FBC). Then, the block is properly aligned and can be freed.
@@ -184,8 +185,11 @@ static void *find_free(size_t n) {
  * @ingroup    MEM
  *
  * @param      address  The address of the value to be freed
+ * 
+ * @return     NULL on success.
+ * @todo       Implement a procedure to merge adjacent unused blocks.
  */
-void free(void *address) {
+void* free(void *address) {
 	struct block *changeBlock = (struct block *)address;
 	char *tBlock = (char*)address;
 
@@ -195,8 +199,20 @@ void free(void *address) {
 			break;
 		}
 	}
+
 	(*changeBlock).used = FALSE;
 	memory_set(&(*changeBlock).data, 0, (*changeBlock).size - ALIGN(0));
+	/*if(changeBlock == top) {
+		memory_set((uint8_t*)changeBlock, 0, &(*changeBlock).data - (uint8_t*)changeBlock);
+		struct block *current = head;
+		while(current->next != changeBlock) {
+			current = current->next;
+		}
+		current->next = NULL;
+		top = current;
+	}*/
+
+	return NULL;
 }
 
 /**
@@ -214,17 +230,32 @@ void *malloc(uint32_t size) {
 
 // Debug functions
 
+void* get_top() {
+	return top;
+}
+
 static void print_node(struct block *current) {
-	UNUSED(current);
-	/*kprint("ADDR: ");
-	kprint(hex_to_ascii((int) current));
+	//UNUSED(current);
+	char* string = hex_to_ascii((int) current); 
+	kprint("ADDR: ");
+	kprint(string);
+	free(string);
+
 	kprint(", SIZE:");
-	kprint(hex_to_ascii((int)(*current).size));
-	kprint(", FREE:");
-	kprint(hex_to_ascii((int)(*current).used));
+	string = hex_to_ascii((int)(*current).size); 
+	kprint(string);
+	free(string);
+
+	kprint(", USED:");
+	string = int_to_ascii((int)(*current).used);
+	kprint(string);
+	free(string);
+
 	kprint(", NEXT:");
-	kprint(hex_to_ascii((int)(*current).next));
-	kprint("\n");*/
+	string = hex_to_ascii((int)(*current).next);
+	kprint(string);
+	free(string);
+	kprint("\n");
 }
 
 static void traverse() {
@@ -234,4 +265,8 @@ static void traverse() {
 	}
 	print_node(current);
 	kprint("\n");
+}
+
+void debug_traverse() {
+	traverse();
 }

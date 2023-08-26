@@ -56,11 +56,16 @@ void LS(char *args) {
 }
 
 void HELP(char *args) {
-	struct command_block t = *(command_resolver_head->next);
-	while(t.next != NULL) {
-		kprintn(t.call_string);
-		t = *t.next;
+	struct command_block *t = (command_resolver_head->next);
+	while(t != NULL) {
+		kprintn(t->call_string);
+		t = t->next;
 	}
 
+	UNUSED(args);
+}
+
+void DEBUG_PAUSE(char *args) {
+	kprintn("zzzzz");
 	UNUSED(args);
 }

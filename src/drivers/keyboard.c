@@ -74,35 +74,65 @@ uint8_t keys_pressed[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 struct keyboard_initializer *initializer;
 
 /**
- * @brief      Creates a keyboard initializer
+ * @brief      Creates a keyboard initializer.
  * @ingroup    KEYBOARD
  *
- * @param      buffer_addr         The key buffer address
- * @param[in]  n_callbacks         The number of key callbacks
- * @param      keycodes            The keycodes of those callbacks
- * @param[in]  gcallback_functions The functions whe callbacks should call
- * @param[in]  gcallback           The gcallback
+ * @param[in]  n_callbacks           The number of callbacks
+ * @param      callbacks_k           The callbacks keycodes
+ * @param[in]  callbacks_f           The callbacks functions
+ * @param[in]  special_key_behavior  The special key behavior
+ * @param      keybuffer_addr        The keybuffer address
  *
- * @return     A pointer to the created keyboard initializer
+ * @return     A pointer to the created keyboard initializer.
  */
-struct keyboard_initializer *create_initializer(char* buffer_addr,
-                                               uint8_t n_callbacks,
-                                               uint8_t *keycodes,
-                                               void (**gcallback_functions)(),
-                                               void (*gcallback)()   ) {
-    struct keyboard_initializer *returnvalue = malloc(sizeof(struct keyboard_initializer)); // free handled
+struct keyboard_initializer *create_initializer(uint8_t n_callbacks,
+                                                uint8_t callbacks_k[],
+                                                void (*callbacks_f[])(),
+                                                uint8_t special_key_behavior,
+                                                void* keybuffer_addr) {
+    struct keyboard_initializer *returnvalue = malloc(sizeof(struct keyboard_initializer));
     int i = 0;
-    for(; i < n_callbacks*3; i++) returnvalue->callback_keycodes[i] = keycodes[i];
-    for(; i < 30; i++)            returnvalue->callback_keycodes[i] = 0x0;
-    
-    returnvalue->nkey_buffer        = buffer_addr;
-    returnvalue->num_callbacks      = n_callbacks;
-    returnvalue->callback_functions = gcallback_functions;
-    returnvalue->general_callback   = gcallback;
+    for(; i < n_callbacks*3; i++)    returnvalue->callback_keycodes[i]  = callbacks_k[i];
+    for(; i < 30; i++)               returnvalue->callback_keycodes[i]  = 0x0;
+    for(i = 0; i < n_callbacks; i++) returnvalue->callback_functions[i] = callbacks_f[i];
 
-    free(keycodes);
+    returnvalue->nkey_buffer      = keybuffer_addr;
+    returnvalue->num_callbacks    = n_callbacks;
+    returnvalue->general_callback = special_key_behavior;
 
     return returnvalue;
+}
+
+/**
+ * @brief      Initializes the keyboard.
+ * @ingroup    KEYBOARD
+ * @param      nkey_initializer The keyboard initializer
+ * @todo       Fix key_buffer free behavior
+ */
+void init_keyboard(struct keyboard_initializer* nkey_initializer) {
+    initializer = nkey_initializer;
+    reset_keyboard();
+    
+    key_buffer = nkey_initializer->nkey_buffer;
+
+    int i = 0;
+    for(; i < nkey_initializer->num_callbacks; i++) {
+        key_callbacks[i].key_1 = nkey_initializer->callback_keycodes[i*3];
+        key_callbacks[i].key_2 = nkey_initializer->callback_keycodes[i*3+1];
+        key_callbacks[i].key_3 = nkey_initializer->callback_keycodes[i*3+2];
+        key_callbacks[i].callback = nkey_initializer->callback_functions[i];
+    }
+
+    if(nkey_initializer->general_callback == (void*)0x0)  {
+        register_interrupt_handler(IRQ1, default_keyboard_callback);
+        special_key_behavior = 0;
+    } else if(nkey_initializer->general_callback == (void*)0x1) {
+        register_interrupt_handler(IRQ1, default_keyboard_callback);
+        special_key_behavior = 1;
+    } else {
+        register_interrupt_handler(IRQ1, nkey_initializer->general_callback);
+        special_key_behavior = 0;
+    }
 }
 
 static int attempt_key_callbacks() {
@@ -138,8 +168,11 @@ static void default_keyboard_callback(registers_t *regs) {
             kprint_backspace();
         } else if (scancode == LSHIFTP) {
         } else if (scancode == RSHIFTP) {
-        } else if (scancode == 0x1C && special_key_behavior) {
+        } else if (scancode == 0x1C && special_key_behavior == 1) {
             append(key_buffer, 0x1C); 
+        } else if (scancode == 0x1C && special_key_behavior == 0) {
+            append(key_buffer, '\n');
+            kprint("\n"); 
         } else {                                                    
             char letter = (keys_pressed[0x2A] || keys_pressed[0x36]) ? ascii_shift[(int) scancode] : ascii[(int) scancode];
             char str[2] = {letter, '\0'}; 
@@ -163,38 +196,6 @@ static void reset_keyboard() {
 }
 
 /**
- * @brief      Initializes the keyboard.
- * @ingroup    KEYBOARD
- * @param      nkey_initializer The keyboard initializer
- * @todo       Fix key_buffer free behavior
- */
-void init_keyboard(struct keyboard_initializer* nkey_initializer) {
-    initializer = nkey_initializer;
-    //if(key_buffer != 0x0) free(key_buffer); // needs to be fixed
-    //reset_keyboard();
-    
-    key_buffer = nkey_initializer->nkey_buffer;
-
-    int i = 0;
-    for(; i < nkey_initializer->num_callbacks; i++) {
-        key_callbacks[i].key_1 = nkey_initializer->callback_keycodes[i*3];
-        key_callbacks[i].key_2 = nkey_initializer->callback_keycodes[i*3+1];
-        key_callbacks[i].key_3 = nkey_initializer->callback_keycodes[i*3+2];
-        key_callbacks[i].callback = nkey_initializer->callback_functions[i];
-    }
-    if(nkey_initializer->general_callback == (void*)0x0)  {
-        register_interrupt_handler(IRQ1, default_keyboard_callback);
-        special_key_behavior = 0;
-    } else if(nkey_initializer->general_callback == (void*)0x1) {
-        register_interrupt_handler(IRQ1, default_keyboard_callback);
-        special_key_behavior = 1;
-    } else {
-        register_interrupt_handler(IRQ1, nkey_initializer->general_callback);
-        special_key_behavior = 0;
-    }
-}
-
-/**
  * @brief      Reads a line.
  * @ingroup    KEYBOARD
  * @return     The line which has been read
@@ -203,15 +204,13 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer) {
  */
 char* read_line() {
     char *line_keybuffer = malloc(sizeof(char)*256);
-    uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
-    keycodes[0] = 0x0; keycodes[1] = 0x0; keycodes[2] = 0x0;
-    void (**gcallback_functions)() = malloc(sizeof(void*)*10); // memory leak?
-    *gcallback_functions = (void*)read_line;
-    struct keyboard_initializer* keyboardi = create_initializer(line_keybuffer,
-                                                                1,
+    void (*gcallback_functions[])() = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    uint8_t keycodes[] = {NULL};
+    struct keyboard_initializer* keyboardi = create_initializer(0,
                                                                 keycodes,
                                                                 gcallback_functions,
-                                                                (void*)0x1);
+                                                                0x1,
+                                                                line_keybuffer);
     init_keyboard(keyboardi);
     while(1) {
         if(character_exists(0x1C, line_keybuffer) > -1) break;
@@ -245,13 +244,12 @@ void await_keypress() {
     char *line_keybuffer = malloc(sizeof(char)*256);
     uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
     keycodes[0] = 0x0; keycodes[1] = 0x0; keycodes[2] = 0x0;
-    void (**gcallback_functions)() = malloc(sizeof(void*)*10); // memory leak?
-    *gcallback_functions = (void*)read_line;
-    struct keyboard_initializer* keyboardi = create_initializer(line_keybuffer,
-                                                                1,
+    void (*gcallback_functions[])() = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+    struct keyboard_initializer* keyboardi = create_initializer(0,
                                                                 keycodes,
                                                                 gcallback_functions,
-                                                                (void*)0x1);
+                                                                (void*)0x1,
+                                                                line_keybuffer);
     init_keyboard(keyboardi);
     while(1) if(strlen(line_keybuffer) > 0) break;
     

@@ -46,9 +46,10 @@ void kernel_main() {
     register_command(command_resolver_head, END, "end");
     register_command(command_resolver_head, PAGE, "page");
     register_command(command_resolver_head, ECHO, "echo");
-    register_command(command_resolver_head, tedit, "tedit"); 
     register_command(command_resolver_head, LS, "ls");
     register_command(command_resolver_head, HELP, "help");
+    register_command(command_resolver_head, DEBUG_PAUSE, "dbp");
+    register_command(command_resolver_head, tedit, "tedit"); 
 
     /*char* tfile_name = "HELLO_WORLD.TXT";
     char* exfiledata = "HELLO WORLD\nTHIS IS AN EXAMPLE FILE!!!!\nYAY!!!!\n";
@@ -76,15 +77,16 @@ void user_input(char *input) {
  * @todo       Implement frees for mallocs
  */
 void kernel_init_keyboard() {
+    if(lkeybuffer != NULL) {
+        lkeybuffer = free(lkeybuffer);
+    }
     lkeybuffer = malloc(sizeof(char)*256); // memory leak?
-    uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
-    keycodes[0] = 0x1C; keycodes[1] = 0x0; keycodes[2] = 0x0;
-    void (**gcallback_functions)() = malloc(sizeof(void*)*10); // memory leak?
-    *gcallback_functions = user_input;
-    struct keyboard_initializer* keyboardi = create_initializer((char*) lkeybuffer, // ??? Why does casting from a char** to a char* just work???
-                                                                1,
+    uint8_t keycodes[] = {0x1C, 0x0, 0x0};
+    void (*gcallback_functions[])() = {user_input, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    struct keyboard_initializer* keyboardi = create_initializer(1,
                                                                 keycodes,
                                                                 gcallback_functions,
-                                                                0x0);
+                                                                0x0,
+                                                                (char*) lkeybuffer); // ??? Why does casting from a char** to a char* just work???);
     init_keyboard(keyboardi);
 }

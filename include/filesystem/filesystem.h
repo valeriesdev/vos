@@ -10,6 +10,7 @@ struct file {
 
 void load_fat_from_disk();
 void write_file(char* name, void *file_data, uint32_t size_bytes);
+void overwrite_file(char* name, void *file_data, uint32_t size_bytes);
 void *read_file(char* name);
 struct file *get_files();
 uint8_t get_file(char* name);

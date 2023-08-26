@@ -8,6 +8,7 @@ void ECHO(char *args);
 void NULLFUNC(char *args);
 void LS(char *args);
 void HELP(char *args);
+void DEBUG_PAUSE(char *args);
 
 struct command_block {
 	void (*function)();

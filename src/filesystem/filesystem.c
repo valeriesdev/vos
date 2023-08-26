@@ -25,6 +25,7 @@
 
 // Private function definitions
 static void initialize_empty_fat_to_disk();
+static void update_disk_fat();
 
 struct file *fat_head;
 uint32_t num_registered_files;
@@ -34,8 +35,9 @@ uint32_t first_free_sector;
  * @brief      Gets a file.
  * @ingroup    FILESYSTEM
  * @param      name  The name of the file
- *
+ *	
  * @return     The file index.
+ * @todo       Make static
  */
 uint8_t get_file(char* name) {
 	struct file *current = fat_head;
@@ -68,6 +70,34 @@ void write_file(char* name, void *file_data, uint32_t size_bytes) {
 
 	write_sectors_ATA_PIO(node->lba, size_sectors ,(uint16_t*)file_data);	
 	num_registered_files++;
+	update_disk_fat();
+}
+
+/**
+ * @brief      Overwrites an existing file
+ * @ingroup    FILESYSTEM
+ * @param      name        The name
+ * @param      file_data   The file data
+ * @param[in]  size_bytes  The size bytes
+ * 
+ * @todo       Add procedure to delete and re-create the file if it is too big.
+ */
+void overwrite_file(char* name, void *file_data, uint32_t size_bytes) {
+	uint8_t file_number = get_file(name);
+	if(file_number == 0) return;
+
+	struct file *node = fat_head+file_number;
+	uint32_t size_sectors = size_bytes/512;
+	if(size_sectors == 0) size_sectors = 1;
+	if(size_sectors <= node->length) {
+		memory_copy((uint8_t*)name, (uint8_t*)&(node->name), strlen(name)+1);
+		node->magic = 0xFFFFFFFF;
+
+		write_sectors_ATA_PIO(node->lba, size_sectors ,(uint16_t*)file_data);	
+	} else {
+		// Delete and re-create
+	}
+	update_disk_fat();
 }
 
 /**
@@ -98,7 +128,7 @@ void load_fat_from_disk() {
 	if(fat_head->magic != 0xFFFFFFFF) {
 		kprintn("Loading FAT from disk failed, invalid allocation table. Creating new FAT");
 		initialize_empty_fat_to_disk();
-		free(fat_head);
+		fat_head = free(fat_head);
 		load_fat_from_disk();
 	} else {
 		kprintn("Successfully loaded FAT");
@@ -108,11 +138,24 @@ void load_fat_from_disk() {
 }
 
 /**
+ * @brief      Updates the FAT table to disk
+ * @ingroup    FILESYSTEM
+ */
+static void update_disk_fat() {
+	uint8_t num_sectors = (sizeof(struct file)*num_registered_files/512 > 1 ) ? sizeof(struct file)*num_registered_files/512 : 1;
+	uint16_t* t_storage = malloc(num_sectors*512);
+	memory_copy((uint8_t*)fat_head, (uint8_t*)t_storage,sizeof(struct file)*num_registered_files);
+	write_sectors_ATA_PIO(FAT_LBA, num_sectors, (uint16_t*)fat_head);
+	//t_storage = free(t_storage); // major source of memory leaking
+}
+
+/**
  * @brief      Initializes the empty fat table to disk.
  * @ingroup    FILESYSTEM
  * @todo       Fix fat_head and t_storage free behavior
+ * @todo       Make static
  */
-void initialize_empty_fat_to_disk() {
+static void initialize_empty_fat_to_disk() {
 	fat_head = (struct file*)malloc(sizeof(struct file));
 	memory_copy((uint8_t*)&initial_node_name, (uint8_t*)&(fat_head->name), 9);
 	fat_head->lba = FIRST_DATA_LBA;
