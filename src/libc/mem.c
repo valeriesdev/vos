@@ -26,6 +26,8 @@
  * If an unused block (one where used == 0) which has a size greater than the new size does not exist:  Append the new block to the end of the list. <br>
  * Otherwise, if the unused block has room for the new size and a char:  Split the unused block in two and allocate the new block to the first, and mark the block used (used = 1). <br>
  * Otherwise, Allocate the new block to the unused block, and mark the block used.<br>
+ * 
+ * If, when allocating, there are more than FREE_BLOCK_THRESHOLD blocks marked unused, the refactor_free function is called to attempt and clear up free blocks.
  * 		
  * When freeing a block, the block is simply marked unused, unless it is the last block. 
  * If it is the last block so, the block is deleted. Then, if the new last block is marked unused, recursively free the last block.
@@ -45,6 +47,7 @@
 
 #define TRUE 1
 #define FALSE 0
+#define FREE_BLOCK_THRESHOLD 10
 #define ALIGN(n) (sizeof(struct block) + n)
 
 /**
@@ -62,11 +65,13 @@ struct block {
 // Private function definitions
 static void *find_free(size_t n);
 static void *alloc(size_t size);
+static void refactor_free();
 static void print_node(struct block *current);
 static void traverse();
 
 struct block *head = (struct block*)0x10000;
 struct block *top  = (struct block*)0x10000;
+uint32_t num_free_blocks;
 
 /**
  * Memory Utility Functions
@@ -115,6 +120,8 @@ void initialize_memory() {
 	(*top).next = NULL;
 	(*top).valid = 0x0FBC;
 	(*top).used = TRUE;
+
+	num_free_blocks = 0;
 
 	if((int)head == 0x10000) kprintn("Memory initialized properly at 0x10000");
 	else kprintn("MEMORY FAILED TO INITIALIZE!");
@@ -188,9 +195,9 @@ static void *find_free(size_t n) {
  * @param      address  The address of the value to be freed
  * 
  * @return     NULL on success.
- * @todo       Implement a procedure to merge adjacent unused blocks.
  */
 void* free(void *address) {
+	num_free_blocks++;
 	struct block *changeBlock = (struct block *)address;
 	char *tBlock = (char*)address;
 
@@ -204,6 +211,7 @@ void* free(void *address) {
 	(*changeBlock).used = FALSE;
 	memory_set(&(*changeBlock).data, 0, (*changeBlock).size - ALIGN(0));
 	if(changeBlock == top) {
+		num_free_blocks--;
 		memory_set((uint8_t*)changeBlock, 0, &(*changeBlock).data - (uint8_t*)changeBlock);
 		struct block *current = head;
 		while(current->next != changeBlock) {
@@ -219,6 +227,26 @@ void* free(void *address) {
 }
 
 /**
+ * @brief      Attempts to reduce the number of unused blocks
+ * @ingroup    MEM
+ * @todo       Verify functionality
+ */
+static void refactor_free() {
+	struct block *current = head;
+	while(current != NULL) {
+		if(!(current->used == TRUE || current->next->used == TRUE)) {
+			struct block *adjacent_block = current->next;
+			current->next = adjacent_block->next;
+
+			current->size += adjacent_block->size;
+			memory_set(&(*current).data, 0, (*current).size - ALIGN(0));
+		} else {
+			current = current->next;
+		}
+	}
+}
+
+/**
  * @brief      Allocate a block of memory
  * @ingroup    MEM
  *
@@ -227,6 +255,8 @@ void* free(void *address) {
  * @return     The address of the block
  */
 void *malloc(uint32_t size) {
+	if(num_free_blocks > FREE_BLOCK_THRESHOLD) refactor_free();
+
 	void* t = alloc(size);
 	return t;
 }
