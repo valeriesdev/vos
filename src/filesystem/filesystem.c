@@ -111,7 +111,7 @@ void *read_file(char* name) {
 	uint8_t offset = get_file(name);
 	if(offset == 0) return NULL;
 	struct file *file_to_read = fat_head+offset;
-	void *return_file = malloc(file_to_read->length);
+	void *return_file = malloc(file_to_read->length*512);
 	read_sectors_ATA_PIO((uint32_t)return_file, file_to_read->lba, file_to_read->length);
 	return return_file;
 } 
@@ -146,7 +146,7 @@ static void update_disk_fat() {
 	uint16_t* t_storage = malloc(num_sectors*512);
 	memory_copy((uint8_t*)fat_head, (uint8_t*)t_storage,sizeof(struct file)*num_registered_files);
 	write_sectors_ATA_PIO(FAT_LBA, num_sectors, (uint16_t*)fat_head);
-	//t_storage = free(t_storage); // major source of memory leaking
+	t_storage = free(t_storage); // major source of memory leaking
 }
 
 /**

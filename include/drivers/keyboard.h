@@ -56,7 +56,7 @@ void init_keyboard(struct keyboard_initializer* nkey_initializer);
 struct keyboard_initializer *create_initializer(uint8_t n_callbacks,
                                                 uint8_t callbacks_k[],
                                                 void (*callbacks_f[])(),
-                                                uint8_t special_key_behavior,
+                                                void* special_key_behavior,
                                                 void* keybuffer_addr);
 
 char* read_line();

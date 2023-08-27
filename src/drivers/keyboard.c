@@ -88,7 +88,7 @@ struct keyboard_initializer *initializer;
 struct keyboard_initializer *create_initializer(uint8_t n_callbacks,
                                                 uint8_t callbacks_k[],
                                                 void (*callbacks_f[])(),
-                                                uint8_t special_key_behavior,
+                                                void* special_key_behavior,
                                                 void* keybuffer_addr) {
     struct keyboard_initializer *returnvalue = malloc(sizeof(struct keyboard_initializer));
     int i = 0;
@@ -107,9 +107,10 @@ struct keyboard_initializer *create_initializer(uint8_t n_callbacks,
  * @brief      Initializes the keyboard.
  * @ingroup    KEYBOARD
  * @param      nkey_initializer The keyboard initializer
- * @todo       Fix key_buffer free behavior
+ * @note       The responsibility to free the keybuffer is on the program.
  */
 void init_keyboard(struct keyboard_initializer* nkey_initializer) {
+    if(initializer != NULL) initializer = free(initializer);
     initializer = nkey_initializer;
     reset_keyboard();
     
@@ -198,18 +199,20 @@ static void reset_keyboard() {
 /**
  * @brief      Reads a line.
  * @ingroup    KEYBOARD
- * @return     The line which has been read
- * @todo       Implement dynamic keyboard initializer resets
+ * @return     The line which has been read. <i>Must be freed</i>
  * @todo       Implement frees for mallocs
  */
 char* read_line() {
+    struct keyboard_initializer *old_initializer = malloc(sizeof(struct keyboard_initializer));
+    memory_copy((uint8_t*)initializer, (uint8_t*)old_initializer, sizeof(struct keyboard_initializer));
+
     char *line_keybuffer = malloc(sizeof(char)*256);
     void (*gcallback_functions[])() = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-    uint8_t keycodes[] = {NULL};
+    uint8_t keycodes[] = {0};
     struct keyboard_initializer* keyboardi = create_initializer(0,
                                                                 keycodes,
                                                                 gcallback_functions,
-                                                                0x1,
+                                                                (void*)0x1,
                                                                 line_keybuffer);
     init_keyboard(keyboardi);
     while(1) {
@@ -219,8 +222,8 @@ char* read_line() {
     char * return_value = malloc(sizeof(char) * strlen(line_keybuffer));
     memory_copy((uint8_t*)line_keybuffer, (uint8_t*)return_value, sizeof(char) * strlen(line_keybuffer));
 
-    //init_keyboard(old_initializer);
-    kernel_init_keyboard();
+    free(line_keybuffer);
+    init_keyboard(old_initializer);
     return_value[strlen(return_value)-1] = '\0';
     return return_value;
 }
@@ -242,8 +245,7 @@ char* get_keybuffer() {
  */
 void await_keypress() {
     char *line_keybuffer = malloc(sizeof(char)*256);
-    uint8_t *keycodes = malloc(sizeof(uint8_t)*3); // memory leak?
-    keycodes[0] = 0x0; keycodes[1] = 0x0; keycodes[2] = 0x0;
+    uint8_t keycodes[] = {0x0, 0x0, 0x0}; // memory leak?
     void (*gcallback_functions[])() = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
     struct keyboard_initializer* keyboardi = create_initializer(0,
                                                                 keycodes,

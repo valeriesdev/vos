@@ -19,14 +19,10 @@
 extern struct command_block *command_resolver_head;
 
 void ECHO(char *args) {
-	kprint(args);
+	kprint(str_split(args,' ')[1]);
 	kprint("\n");
-	//kprint(str_split(args,' ')[1]);
-	//kprint("\n");
 
 	UNUSED(args);
-
-	return;
 }
 
 void END(char *args) {
@@ -66,6 +62,21 @@ void HELP(char *args) {
 }
 
 void DEBUG_PAUSE(char *args) {
-	kprintn("zzzzz");
+	int i = 0;
+	for(i = 0; i < 512*10; i += 1) {
+		void* z = malloc(i);
+		char* x = int_to_ascii(i);
+		kprintn(x);
+		free(z);
+		free(x);
+	}
+
+	debug_traverse();
+	
+	UNUSED(args);
+}
+
+void LESS(char *args) {
+
 	UNUSED(args);
 }

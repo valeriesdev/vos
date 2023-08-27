@@ -65,14 +65,24 @@ static void save_program() {
 
 static void initialize() {
 	clear_screen();
+	initialize_keyboard();
 
 	struct popup_str_struct* z = malloc(sizeof(struct popup_str_struct));
 	*z = (struct popup_str_struct) {5,20,5,15,6,"Enter file name: ", 12, NULL};
 	file_name = create_popup(1, z);
 	z = free(z);
 
-	initialize_keyboard();
-	
+	// Static screen text
+	char* header_00 = "0x00000 | VOS TEdit 0.0 | File: ";
+	char* header_01 = " | ? ";
+	char* footer_00 = "Press ctrl+q to exit, ctrl+s to save.";
+
+	kprint_at(header_00,0,0);
+	kprint(file_name);
+	kprint(header_01);
+	kprint_at_preserve(footer_00,0,24);
+	kprint("\n");
+
 	struct file* files = get_files()+1;
 	while(files->magic == 0xFFFFFFFF) {
 		if(strcmp(files->name,file_name) == 0) break;
@@ -84,27 +94,11 @@ static void initialize() {
 	} else {
 		// procedure for editing file
 		new_file = FALSE;
-		// Load file from disk
-		// Copy file into keybuffer
-		// Print keybuffer
 		void* old_file = read_file(file_name);
 		memory_copy((uint8_t*)old_file,(uint8_t*)keybuffer,strlen((char*)old_file));
 		kprint_at(keybuffer,0,1);
 		free(old_file);
 	}
-
-	// Static screen text
-	char* header_00 = "0x00000 | VOS TEdit 0.0 | File: ";
-	char* header_01 = " | New file?: ";
-	char* footer_00 = "Press ctrl+q to exit, ctrl+s to save.";
-
-	kprint_at(header_00,0,0);
-	kprint(file_name);
-	kprint(header_01);
-	if(new_file) kprint("YES");
-	else kprint("NO");
-	kprint_at_preserve(footer_00,0,24);
-	kprint("\n");
 
 	exit = 1;
 	while(exit);

@@ -27,7 +27,8 @@
  * Otherwise, if the unused block has room for the new size and a char:  Split the unused block in two and allocate the new block to the first, and mark the block used (used = 1). <br>
  * Otherwise, Allocate the new block to the unused block, and mark the block used.<br>
  * 		
- * When freeing a block, the block is simply marked unused, unless it is the last block. If so, the block is deleted.
+ * When freeing a block, the block is simply marked unused, unless it is the last block. 
+ * If it is the last block so, the block is deleted. Then, if the new last block is marked unused, recursively free the last block.
  * 
  * When returning the malloc'd block, or when freeing a block, the address returned/used is the address of data, so that pointers can be assigned directly to the return value of malloc. <br>
  * To free a block, the address used is stepped back until the magic number is valid (0x0FBC). Then, the block is properly aligned and can be freed.
@@ -152,7 +153,7 @@ static void *alloc(size_t size) {
 		return &(*newBlock).data;
 	} else { // Procedure for allocating a block at the middle of the db
 		if((*newBlock).size - ALIGN(size) > ALIGN(sizeof(char))) { // Split block
-			struct block *insertBlock = (struct block*)newBlock + ALIGN(size);
+			struct block *insertBlock = (struct block*)((uint8_t*)newBlock + ALIGN(size));
 			(*insertBlock).size = (*newBlock).size - ALIGN(size);
 			(*insertBlock).next = (*newBlock).next;
 			(*insertBlock).valid = 0x0FBC;
@@ -176,7 +177,7 @@ static void *find_free(size_t n) {
 	for(; (*current).next != NULL; current = (*current).next) {
 		if((*current).used == FALSE && ALIGN(n) < (*current).size) return current;
 	}
-	if((*current).used == FALSE && ALIGN(n) < (*current).size) return current;
+	//if((*current).used == FALSE && ALIGN(n) < (*current).size) return current;
 	return current;
 }
 
@@ -202,7 +203,7 @@ void* free(void *address) {
 
 	(*changeBlock).used = FALSE;
 	memory_set(&(*changeBlock).data, 0, (*changeBlock).size - ALIGN(0));
-	/*if(changeBlock == top) {
+	if(changeBlock == top) {
 		memory_set((uint8_t*)changeBlock, 0, &(*changeBlock).data - (uint8_t*)changeBlock);
 		struct block *current = head;
 		while(current->next != changeBlock) {
@@ -210,7 +211,9 @@ void* free(void *address) {
 		}
 		current->next = NULL;
 		top = current;
-	}*/
+	}
+
+	if(top->used == 0) free(top);
 
 	return NULL;
 }
