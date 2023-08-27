@@ -2,6 +2,7 @@
  * @defgroup   KERNEL kernel
  *
  * @brief      The operating system kernel entry point
+ * @todo       Replace get_keybuffer() calls with reference to local keybuffer
  * 
  * @author     Valerie Whitmire
  * @date       2023
@@ -13,6 +14,7 @@
 #include "libc/function.h"
 #include "libc/string.h"
 #include "libc/mem.h"
+#include "libc/vstddef.h"
 #include "kernel/kernel.h"
 #include "kernel/commands.h"
 #include "stock/tedit/tedit.h"
@@ -23,7 +25,7 @@
 struct command_block *command_resolver_head;
 char **lkeybuffer;
 
-void (*next_function)(char*) = NULL;
+vf_ptr_s next_function = NULL;
 
 /**
  * @brief      The kernel entry point.
@@ -61,26 +63,25 @@ void kernel_main() {
             next_function(get_keybuffer());
             next_function = NULL;
             kprint("> ");
-            key_buffer[0] = '\0';
+            get_keybuffer()[0] = '\0';
         }
     }
 }
 
 void user_input(char *input) {
-    next_function = resolve_command(*command_resolver_head, str_split(key_buffer, ' ')[0]);
+    next_function = resolve_command(*command_resolver_head, str_split(get_keybuffer(), ' ')[0]);
     UNUSED(input);
 }
 
 /**
  * @brief      Initializes the keyboard to the state it should be in for CLI use
  * @ingroup    KERNEL
- * @todo       Implement frees for mallocs
  */
 void kernel_init_keyboard() {
     if(lkeybuffer != NULL) {
         lkeybuffer = free(lkeybuffer);
     }
-    lkeybuffer = malloc(sizeof(char)*256); // memory leak?
+    lkeybuffer = malloc(sizeof(char)*256);
     uint8_t keycodes[] = {0x1C, 0x0, 0x0};
     void (*gcallback_functions[])() = {user_input, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     struct keyboard_initializer* keyboardi = create_initializer(1,

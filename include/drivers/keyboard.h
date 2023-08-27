@@ -1,6 +1,8 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include "libc/vstddef.h"
+
 #define BACKSPACE 0x0E
 #define ENTER 0x1C
 #define SC_MAX 114
@@ -20,8 +22,8 @@ struct keyboard_initializer {
 	char* nkey_buffer;
     uint8_t num_callbacks;
     uint8_t callback_keycodes[30]; // 0-2 is callback 1, 3-5 is 2, 6-8 is 3, etc
-    void (*callback_functions[10])();    
-    void (*general_callback)();
+    vf_ptr callback_functions[10];    
+    vf_ptr general_callback;
 };
 
 struct key_callback {
@@ -29,33 +31,13 @@ struct key_callback {
 	uint8_t key_2;
 	uint8_t key_3;
 
-	void (*callback)();
+	vf_ptr callback;
 };
 
-extern char *key_buffer; // need to remove
-
-/** Example to initialize the keyboard with one callback, for the enter key.
- *  uint8_t *keycodes = malloc(sizeof(uint8_t)*3);
- *  keycodes[0] = 0x1C; keycodes[1] = NULL; keycodes[2] = NULL;
- *  void (**gcallback_functions)() = malloc(sizeof(void*)*10);
- *  *gcallback_functions = user_input;
- *  struct keyboard_initializer* keyboardi = create_initializer(malloc(sizeof(char)*256),
- *                                                              1,
- *                                                              keycodes,
- *                                                              gcallback_functions,
- *                                                              NULL);
- *  init_keyboard(keyboardi);
-  **/
 void init_keyboard(struct keyboard_initializer* nkey_initializer);
-/*struct keyboard_initializer *create_initializer(char* buffer_addr,
-                                               uint8_t n_callbacks,
-                                               uint8_t *keycodes,
-                                               void (**gcallback_functions)(),
-                                               void (*gcallback)());
-*/
 struct keyboard_initializer *create_initializer(uint8_t n_callbacks,
                                                 uint8_t callbacks_k[],
-                                                void (*callbacks_f[])(),
+                                                vf_ptr callbacks_f[],
                                                 void* special_key_behavior,
                                                 void* keybuffer_addr);
 

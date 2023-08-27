@@ -26,6 +26,7 @@
 // Private function definitions
 static void initialize_empty_fat_to_disk();
 static void update_disk_fat();
+static uint8_t get_file(char* name);
 
 struct file *fat_head;
 uint32_t num_registered_files;
@@ -37,9 +38,8 @@ uint32_t first_free_sector;
  * @param      name  The name of the file
  *	
  * @return     The file index.
- * @todo       Make static
  */
-uint8_t get_file(char* name) {
+static uint8_t get_file(char* name) {
 	struct file *current = fat_head;
 	while(current->magic == 0xFFFFFFFF) {
 		if(strcmp(current->name, name) == 0) return 1;

@@ -87,7 +87,7 @@ struct keyboard_initializer *initializer;
  */
 struct keyboard_initializer *create_initializer(uint8_t n_callbacks,
                                                 uint8_t callbacks_k[],
-                                                void (*callbacks_f[])(),
+                                                vf_ptr callbacks_f[],
                                                 void* special_key_behavior,
                                                 void* keybuffer_addr) {
     struct keyboard_initializer *returnvalue = malloc(sizeof(struct keyboard_initializer));
@@ -200,7 +200,6 @@ static void reset_keyboard() {
  * @brief      Reads a line.
  * @ingroup    KEYBOARD
  * @return     The line which has been read. <i>Must be freed</i>
- * @todo       Implement frees for mallocs
  */
 char* read_line() {
     struct keyboard_initializer *old_initializer = malloc(sizeof(struct keyboard_initializer));
@@ -240,12 +239,14 @@ char* get_keybuffer() {
 /**
  * @brief      While hang until the user presses a key
  * @ingroup    KEYBOARD
- * @todo       Implement process to return keyboard state to when await_keypress called
- * @todo       Implement frees for mallocs
+ * @todo       Verify function works
  */
 void await_keypress() {
+    struct keyboard_initializer *old_initializer = malloc(sizeof(struct keyboard_initializer));
+    memory_copy((uint8_t*)initializer, (uint8_t*)old_initializer, sizeof(struct keyboard_initializer));
+
     char *line_keybuffer = malloc(sizeof(char)*256);
-    uint8_t keycodes[] = {0x0, 0x0, 0x0}; // memory leak?
+    uint8_t keycodes[] = {0x0, 0x0, 0x0};
     void (*gcallback_functions[])() = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
     struct keyboard_initializer* keyboardi = create_initializer(0,
                                                                 keycodes,
@@ -254,6 +255,6 @@ void await_keypress() {
                                                                 line_keybuffer);
     init_keyboard(keyboardi);
     while(1) if(strlen(line_keybuffer) > 0) break;
-    
-    kernel_init_keyboard();
+    free(line_keybuffer);
+    init_keyboard(old_initializer);
 }
