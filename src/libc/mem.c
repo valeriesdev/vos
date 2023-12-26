@@ -49,6 +49,7 @@
 #define FALSE 0
 #define FREE_BLOCK_THRESHOLD 10
 #define ALIGN(n) (sizeof(struct block) + n)
+#define ALIGN_P(n) (sizeof(size_t) + sizeof(struct block*) + sizeof(uint32_t))
 
 /**
  * @brief      A block of memory.
@@ -259,6 +260,42 @@ void *malloc(uint32_t size) {
 
 	void* t = alloc(size);
 	return t;
+}
+
+/**
+ * @bried     Allocate ablock of memory, with provision to allign that to a specific address.
+ * @ingroup   MEM
+ * 
+ * @todo       FINISH!
+ * 
+ * @param[in] size  The size
+ * @param[in] align The address to align to
+ * 
+ * @return    The address of the block
+ */
+void *malloc_align(uint32_t size, uint32_t align) {
+	if(num_free_blocks > FREE_BLOCK_THRESHOLD) refactor_free();
+
+	void * regular_address = (void *)find_free(size);
+	/*if(((int)regular_address & 0xFFF) == 0) {
+		void* t = alloc(size);
+		return t;
+	}*/
+
+	// allocate a new temp block at the end of the list, that takes us
+	// to the aligned address
+	// allocate our block
+	// mark our temp block as trash
+	struct block * new_block = ((int)((char*)top+ (*top).size + 4096) & 0xFFFFFFFFFFFFF000) - 0x10;// - ALIGN_P(size);
+	(*new_block).size = ALIGN(size);
+	(*new_block).next = NULL;
+	(*new_block).valid = 0x0FBC;
+	(*new_block).used = TRUE;
+
+	(*top).next = new_block;
+	top = (*top).next;
+	
+	return &(*new_block).data;
 }
 
 // Debug functions

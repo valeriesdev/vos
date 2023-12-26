@@ -47,9 +47,9 @@ static void reset_keyboard();
  * @note       The address changes whenever a new keyboard initializer is registered.
  * @ingroup KEYBOARD
  */
-char* key_buffer;
+char* key_buffer = NULL;
 struct key_callback key_callbacks[10];
-uint8_t c_key;
+uint8_t c_key = NULL;
 uint32_t keypresses = 0;
 uint8_t special_key_behavior = 0;
 
@@ -71,7 +71,7 @@ uint8_t keys_pressed[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                           0,0,0,0,0,0,0,0};
 
-struct keyboard_initializer *initializer;
+struct keyboard_initializer *initializer = NULL;
 
 /**
  * @brief      Creates a keyboard initializer.

@@ -22,8 +22,10 @@
 #include "drivers/keyboard.h"
 #include "cpu/timer.h"
 
+#include "cpu/paging.h"
+
 struct command_block *command_resolver_head;
-char **lkeybuffer;
+char **lkeybuffer = NULL;
 
 vf_ptr_s next_function = NULL;
 
@@ -32,11 +34,20 @@ vf_ptr_s next_function = NULL;
  * @ingroup    KERNEL
  */
 void kernel_main() {
+    kprint("Initializing memory manager.\n");
     initialize_memory();
+
+    kprint("Enabling paging.\n");
+    enable_paging();
+    kprint("Paging enabled.\nLoading FAT from disk.\n");
+
     load_fat_from_disk();
 
+    kprint("Installing ISR.\n");
     isr_install();
+    kprint("ISR Installed.\nInstalling IRQ.");
     irq_install();
+    kprint("IRQ Installed.\n");
 
     kprint("Welcome to VOS!\n> ");
 

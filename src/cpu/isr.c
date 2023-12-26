@@ -151,4 +151,5 @@ void irq_install() {
     init_timer(50);
 
     kernel_init_keyboard();
+    return;
 }
