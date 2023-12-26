@@ -18,12 +18,12 @@ static void initialize();
 static void save_program();
 
 // Variables that will need to be malloc'd and free'd
-char* keybuffer;
+char* keybuffer = NULL;
 
 // Variables
-uint8_t new_file;
-char *file_name;
-uint8_t exit;
+uint8_t new_file = NULL;
+char *file_name = NULL;
+uint8_t exit = NULL;
 
 static void initialize_keyboard() {
 	keybuffer = malloc(sizeof(char)*256);

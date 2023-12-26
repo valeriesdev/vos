@@ -71,7 +71,7 @@ void DEBUG_PAUSE(char *args) {
 		free(x);
 	}
 
-	debug_traverse();
+	//debug_traverse();
 	
 	UNUSED(args);
 }

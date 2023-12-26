@@ -274,18 +274,6 @@ void *malloc(uint32_t size) {
  * @return    The address of the block
  */
 void *malloc_align(uint32_t size, uint32_t align) {
-	if(num_free_blocks > FREE_BLOCK_THRESHOLD) refactor_free();
-
-	void * regular_address = (void *)find_free(size);
-	/*if(((int)regular_address & 0xFFF) == 0) {
-		void* t = alloc(size);
-		return t;
-	}*/
-
-	// allocate a new temp block at the end of the list, that takes us
-	// to the aligned address
-	// allocate our block
-	// mark our temp block as trash
 	struct block * new_block = ((int)((char*)top+ (*top).size + 4096) & 0xFFFFFFFFFFFFF000) - 0x10;// - ALIGN_P(size);
 	(*new_block).size = ALIGN(size);
 	(*new_block).next = NULL;

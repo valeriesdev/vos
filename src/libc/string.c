@@ -18,6 +18,7 @@
 
 /**
  * K&R, section 3.6
+ * BROKEN! freeing the str causes a hard crash
  */
 char* int_to_ascii(int n) {
     int i, sign;
