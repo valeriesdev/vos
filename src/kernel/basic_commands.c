@@ -19,7 +19,7 @@
 extern struct command_block *command_resolver_head;
 
 void ECHO(char *args) {
-	kprint(str_split(args,' ')[1]);
+	kprint(args);
 	kprint("\n");
 
 	UNUSED(args);

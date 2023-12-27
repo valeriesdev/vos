@@ -45,7 +45,7 @@ void kernel_main() {
 
     kprint("Installing ISR.\n");
     isr_install();
-    kprint("ISR Installed.\nInstalling IRQ.");
+    kprint("ISR Installed.\nInstalling IRQ.\n");
     irq_install();
     kprint("IRQ Installed.\n");
 
@@ -61,7 +61,7 @@ void kernel_main() {
     register_command(command_resolver_head, ECHO, "echo");
     register_command(command_resolver_head, LS, "ls");
     register_command(command_resolver_head, HELP, "help");
-    register_command(command_resolver_head, DEBUG_PAUSE, "dbp");
+    register_command(command_resolver_head, DEBUG_PAUSE, "debug_command");
     register_command(command_resolver_head, tedit, "tedit"); 
 
     /*char* tfile_name = "HELLO_WORLD.TXT";
@@ -71,10 +71,23 @@ void kernel_main() {
     while(1) {
         if(next_function != NULL) {
             kprint("\n");
-            next_function(get_keybuffer());
+            char** args = str_split(get_keybuffer(),' ');
+            char* args_processed = malloc(sizeof(char)*30);
+            int current_arg = 1;
+            while(args[current_arg] != 0x0 && args[current_arg] != '\0') {
+                int i = 0;
+                for(i = 0; i < strlen(args[current_arg]); i++) {
+                    append(args_processed, args[current_arg][i]);
+                }
+                current_arg++;
+                append(args_processed, ' ');
+            }
+
+            next_function(args_processed);
             next_function = NULL;
             kprint("> ");
             get_keybuffer()[0] = '\0';
+            free(args_processed);
         }
     }
 }

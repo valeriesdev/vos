@@ -163,6 +163,8 @@ char** str_split(char* a_str, const char a_delim) {
         j++;
     }
     output[count][j] = '\0';
+    output[count+1] = malloc(sizeof(char));
+    output[count+1] = '\0';
     return output;
 }
 

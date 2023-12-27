@@ -70,8 +70,8 @@ static void refactor_free();
 static void print_node(struct block *current);
 static void traverse();
 
-struct block *head = (struct block*)0x10000;
-struct block *top  = (struct block*)0x10000;
+struct block *head = (struct block*)0x100000;
+struct block *top  = (struct block*)0x100000;
 uint32_t num_free_blocks;
 
 /**
@@ -115,8 +115,8 @@ void memory_set(uint8_t *dest, uint8_t val, uint32_t len) {
  * @ingroup    MEM
  */
 void initialize_memory() {
-	head = (struct block*)0x10000;
-	top  = (struct block*)0x10000;
+	head = (struct block*)0x100000;
+	top  = (struct block*)0x100000;
 	(*top).size = ALIGN(32);
 	(*top).next = NULL;
 	(*top).valid = 0x0FBC;
@@ -124,7 +124,7 @@ void initialize_memory() {
 
 	num_free_blocks = 0;
 
-	if((int)head == 0x10000) kprintn("Memory initialized properly at 0x10000");
+	if((int)head == 0x100000) kprintn("Memory initialized properly at 0x100000");
 	else kprintn("MEMORY FAILED TO INITIALIZE!");
 
 	return;
