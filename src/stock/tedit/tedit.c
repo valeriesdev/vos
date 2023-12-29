@@ -73,7 +73,7 @@ static void initialize() {
 	z = free(z);
 
 	// Static screen text
-	char* header_00 = "0x00000 | VOS TEdit 0.0 | File: ";
+	char* header_00 = "0x00000 | NaviOS TEdit 0.0 | File: ";
 	char* header_01 = " | ? ";
 	char* footer_00 = "Press ctrl+q to exit, ctrl+s to save.";
 

@@ -46,18 +46,18 @@ void kernel_main() {
     initialize_memory();
 
     kprint("Enabling paging.\n");
-    //enable_paging();
-    kprint("Paging enabled.\nLoading FAT from disk.\n");
+    enable_paging();
+    kprint("Paging enabled.\n");
 
     kprint("Installing ISR.\n");
     isr_install();
     kprint("ISR Installed.\nInstalling IRQ.\n");
     irq_install();
-    kprint("IRQ Installed.\n");
+    kprint("IRQ Installed.\nLoading FAT from disk.\n");
 
     load_fat_from_disk();
 
-    kprint("Welcome to VOS!\n> ");
+    kprint("Welcome to NaviOS!\n> ");
 
     command_resolver_head = malloc(sizeof(struct command_block)); // Does not need to be freed; should always stay in memory
     command_resolver_head->function = NULLFUNC;
