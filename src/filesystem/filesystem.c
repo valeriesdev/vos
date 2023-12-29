@@ -156,13 +156,14 @@ static void update_disk_fat() {
  * @todo       Make static
  */
 static void initialize_empty_fat_to_disk() {
-	fat_head = (struct file*)malloc(sizeof(struct file));
+	//fat_head = (struct file*)malloc(sizeof(struct file));
+	fat_head = (struct file*)malloc(512*3);
 	memory_copy((uint8_t*)&initial_node_name, (uint8_t*)&(fat_head->name), 9);
 	fat_head->lba = FIRST_DATA_LBA;
 	fat_head->length = 1;
 	fat_head->magic = 0xFFFFFFFF;
 
-	uint16_t* t_storage = malloc(sizeof(uint8_t)*32);
+	uint16_t* t_storage = malloc(512*3);
 	memory_copy((uint8_t*)fat_head, (uint8_t*)t_storage,sizeof(fat_head));
 	write_sectors_ATA_PIO(FAT_LBA, 2, (uint16_t*)fat_head);
 }
@@ -174,4 +175,4 @@ static void initialize_empty_fat_to_disk() {
  */
 struct file *get_files() {
 	return fat_head;
-}
+} 

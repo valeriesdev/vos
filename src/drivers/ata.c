@@ -98,7 +98,7 @@ void read_sectors_ATA_PIO(uint32_t target_address, uint32_t LBA, uint8_t sector_
  */
 void write_sectors_ATA_PIO(uint32_t LBA, uint8_t sector_count, uint16_t* bytes) {
     ATA_wait_BSY();
-    port_byte_out(ATA_SELECT_DRIVE,   0xE0 | ((LBA >>24) & 0xF));
+    port_byte_out(ATA_SELECT_DRIVE,   (0xE0 | ((LBA >>24) & 0xF)));
     port_byte_out(ATA_SECTOR_COUNT,   sector_count);
     port_byte_out(ATA_LBA_LOW,        (uint8_t) LBA);
     port_byte_out(ATA_LBA_MID,        (uint8_t)(LBA >> 8));
@@ -111,11 +111,10 @@ void write_sectors_ATA_PIO(uint32_t LBA, uint8_t sector_count, uint16_t* bytes) 
         ATA_wait_RDY();
         int i = 0;
         for(i = 0; i < 256; i++) {
-            port_word_out(ATA_DATA, bytes[i]);
+            port_word_out(ATA_DATA, bytes[i]); 
         }
     }
 }
-
 /**
  * @brief Loops until ATA Busy port is not true
  * @ingroup    ATA

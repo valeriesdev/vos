@@ -24,6 +24,9 @@
 
 #include "cpu/paging.h"
 
+#include "cpu/ports.h"
+
+
 struct command_block *command_resolver_head;
 char **lkeybuffer = NULL;
 
@@ -33,21 +36,26 @@ vf_ptr_s next_function = NULL;
  * @brief      The kernel entry point.
  * @ingroup    KERNEL
  */
+
+void irq_handle_disk(registers_t * regs) {
+    return;
+}
+
 void kernel_main() {
     kprint("Initializing memory manager.\n");
     initialize_memory();
 
     kprint("Enabling paging.\n");
-    enable_paging();
+    //enable_paging();
     kprint("Paging enabled.\nLoading FAT from disk.\n");
-
-    load_fat_from_disk();
 
     kprint("Installing ISR.\n");
     isr_install();
     kprint("ISR Installed.\nInstalling IRQ.\n");
     irq_install();
     kprint("IRQ Installed.\n");
+
+    load_fat_from_disk();
 
     kprint("Welcome to VOS!\n> ");
 
