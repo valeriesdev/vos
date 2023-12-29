@@ -6,6 +6,7 @@
 #include "cpu/timer.h"
 #include "cpu/ports.h"
 #include "libc/function.h"
+#include "kernel/kernel.h"
 
 isr_t interrupt_handlers[256];
 

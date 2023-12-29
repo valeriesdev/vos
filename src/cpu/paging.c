@@ -11,16 +11,54 @@
 #include "libc/mem.h"
 #include "drivers/screen.h"
 #include "libc/string.h"
+#include "cpu/isr.h"
+#include "cpu/paging.h"
+
+static char* h_to_a_inline(int n);
+void page_fault(registers_t *regs);
+
+void allocate_frame(page_t *page, uint8_t is_kernel, uint8_t is_writeable);
+void free_frame(page_t *page);
+static void set_frame(uint32_t frame_address);
+static void clear_frame(uint32_t frame_address);
+static void test_frame(uint32_t frame_address);
+static uint32_t find_first_frame();
+
+uint32_t *page_directory = NULL;
+uint32_t *map = NULL;
+
+page_directory_t kernel_directory = 0;
+page_directory_t current_directory = 0;
+
+// bitmap
+uint32_t *frames;
+uint32_t nframes;
 
 /**
  * @brief      Enables paging
- * @ingroup    CPU
+ * @ingroup    PAGING
  * 
  * @todo       Fix high address space paging.
  * 
  */
 uint8_t enable_paging() {
-	uint32_t *page_directory = malloc_align(4096, 4096);
+    uint32_t end_page = 1024*1024*4*0x1000;         // the last memory address that will be pages
+
+    nframes = end_page/0x1000;                      // the number of page frames
+    frames = (uint32_t*)malloc(nframes);      // allocate the frame bitmap
+    memory_set(frames, 0, INDEX_FROM_BIT(nframes)); // set all bitmap frames to 0
+
+    kernel_directory = (page_directory_t*)malloc_align(sizeof(page_directory_t));
+    memset(kernel_directory, 0, sizeof(page_directory_t));
+    current_directory = kernel_directory;
+
+    int i = 0;
+    while(i <)
+
+
+    /*
+	page_directory = malloc_align(4096, 4096);
+    map = malloc(32768); //each bit represents a page's "is occupied" bit
 
 	uint32_t *page_tables = malloc_align(1024*1024*4, 4096);
 	int i = 0, j = 0;
@@ -44,12 +82,103 @@ uint8_t enable_paging() {
 	__asm__("mov %cr3, %eax\n\t"
 		    "mov %eax, %cr3\n\t");
 
-	//register_interrupt_handler(14, page_fault);
+	register_interrupt_handler(14, page_fault);
 
-	return 0;
+	return 0;*/
 }
 
-/*void page_fault(registers_t *regs) {
+/**
+ * @brief      Allocates a page frame
+ *
+ * @param      page          The page
+ * @param[in]  is_kernel     Indicates if kernel
+ * @param[in]  is_writeable  Indicates if writeable
+ */
+void allocate_frame(page_t *page, uint8_t is_kernel, uint8_t is_writeable) {
+    if(page->frame != 0) return; // Return if frame was already allocated
+
+    uint32_t index = find_first_frame();
+    if(index == (uint32_t)-1) page_fault(NULL); // ERROR! no free frames
+    set_frame(index*0x1000);
+    page->present = 1;
+    page->rw = (is_writeable)?1:0;
+    page->user = (is_kernel)?0:1;
+    page->frame = index;
+}
+
+/**
+ * @brief      Frees a page frame
+ * @todo       Free the memory within that page
+ *
+ * @param      page  The page
+ */
+void free_frame(page_t *page) {
+    uint32_t frame = page->frame;
+    clear_frame(frame);
+    page->frame = 0x0;
+}
+
+/**
+ * @brief      Sets a frame to be present in our bitmap
+ * @ingroup    PAGING
+ *
+ * @param[in]  frame_address  The frame address
+ */
+static void set_frame(uint32_t frame_address) {
+    uint32_t frame = frame_address/0x1000;
+    uint32_t idx = INDEX_FROM_BIT(frame);
+    uint32_t off = OFFSET_FROM_BIT(frame);
+    frames[idx] |= (0x1 << off);
+}
+
+/**
+ * @brief      Sets a frame to be not present in our bitmap
+ * @ingroup    PAGING
+ *
+ * @param[in]  frame_address  The frame address
+ */
+static void clear_frame(uint32_t frame_address) {
+    uint32_t frame = frame_address/0x1000;
+    uint32_t idx = INDEX_FROM_BIT(frame);
+    uint32_t off = OFFSET_FROM_BIT(frame);
+    frames[idx] &= ~(0x1 << off);
+}
+
+/**
+ * @brief      Checks if a frame is present in our bitmap
+ * @ingroup    PAGING
+ *
+ * @param[in]  frame_address  The frame address
+ */
+static void test_frame(uint32_t frame_address) {
+    uint32_t frame = frame_address/0x1000;
+    uint32_t idx = INDEX_FROM_BIT(frame);
+    uint32_t off = OFFSET_FROM_BIT(frame);
+    return (frames[idx] & (0x1 << off));
+}
+
+/**
+ * @brief      Finds the first free frame
+ * @ingroup    PAGING
+ *
+ * @return     The address of the first free frame
+ */
+static uint32_t find_first_frame() {
+    uint32_t i, j;
+    for(i = 0; i < 1024*1024; i++) {
+        if(frames[i] != 0xFFFFFFFF) {
+            for(j = 0; j < 32; j++) {
+                uint32_t current_bit = 0x1 << j;
+                if(!(frames[i]&current_bit)) return i*4*8 + j;
+            }
+        }
+    }
+
+    return -1;
+}
+
+
+void page_fault(registers_t *regs) {
    // A page fault has occurred.
    // The faulting address is stored in the CR2 register.
    uint32_t faulting_address;
@@ -75,7 +204,7 @@ uint8_t enable_paging() {
    while(1);
 } 
 
-char* h_to_a_inline(int n) {
+static char* h_to_a_inline(int n) {
     char *str = "0x0\0000000000000000000000";
 
     const char * hex = "0123456789abcdef";
@@ -91,4 +220,4 @@ char* h_to_a_inline(int n) {
     }
     
     return str;
-}*/
+}
