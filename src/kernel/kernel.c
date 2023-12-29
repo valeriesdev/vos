@@ -46,7 +46,7 @@ void kernel_main() {
     initialize_memory();
 
     kprint("Enabling paging.\n");
-    //enable_paging();
+    enable_paging();
     kprint("Paging enabled.\nLoading FAT from disk.\n");
 
     kprint("Installing ISR.\n");

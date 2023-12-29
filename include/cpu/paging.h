@@ -1,4 +1,4 @@
-uint8_t enable_paging();
+void enable_paging();
 
 typedef struct page {
     uint32_t present  : 1;  // page present
@@ -16,7 +16,7 @@ typedef struct page_table {
 
 typedef struct page_directory {
     page_table_t *tables[1024];
-    uint32_t table_physical[1024];
+    uint32_t tables_physical[1024];
     uint32_t phyiscal_address;
 } page_directory_t;
 
