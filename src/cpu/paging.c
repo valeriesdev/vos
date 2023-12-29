@@ -9,12 +9,8 @@
  * @date       2023
  */
 #include "libc/mem.h"
-#include "cpu/isr.h"
 #include "drivers/screen.h"
 #include "libc/string.h"
-
-void page_fault(registers_t *regs);
-char* h_to_a_inline(int n) ;
 
 /**
  * @brief      Enables paging
@@ -48,12 +44,12 @@ uint8_t enable_paging() {
 	__asm__("mov %cr3, %eax\n\t"
 		    "mov %eax, %cr3\n\t");
 
-	register_interrupt_handler(46, page_fault);
+	//register_interrupt_handler(14, page_fault);
 
 	return 0;
 }
 
-void page_fault(registers_t *regs) {
+/*void page_fault(registers_t *regs) {
    // A page fault has occurred.
    // The faulting address is stored in the CR2 register.
    uint32_t faulting_address;
@@ -95,4 +91,4 @@ char* h_to_a_inline(int n) {
     }
     
     return str;
-}
+}*/

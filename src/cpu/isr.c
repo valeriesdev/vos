@@ -1,14 +1,11 @@
-#include <stdint.h>
-#include <stddef.h>
 #include "cpu/isr.h"
-#include "libc/mem.h"
 #include "cpu/idt.h"
-#include "cpu/ports.h"
-#include "cpu/timer.h"
-#include "libc/string.h"
 #include "drivers/screen.h"
 #include "drivers/keyboard.h"
-#include "kernel/kernel.h"
+#include "libc/string.h"
+#include "cpu/timer.h"
+#include "cpu/ports.h"
+#include "libc/function.h"
 
 isr_t interrupt_handlers[256];
 
@@ -82,7 +79,7 @@ void isr_install() {
 }
 
 /* To print the message which defines every exception */
-char *exception_messages[] = {
+static char *exception_messages[] = {
     "Division By Zero",
     "Debug",
     "Non Maskable Interrupt",
@@ -122,8 +119,7 @@ char *exception_messages[] = {
 
 void isr_handler(registers_t *r) {
     kprint("received interrupt: ");
-    char* s = int_to_ascii(r->int_no);
-    kprint(s);
+    kprint(int_to_ascii(r->int_no));
     kprint("\n");
     kprint(exception_messages[r->int_no]);
     kprint("\n");
@@ -146,10 +142,29 @@ void irq_handler(registers_t *r) {
     }
 }
 
-void irq_install() {
-    asm volatile("sti");
-    init_timer(50);
+extern void irq_common_stub();
 
-    kernel_init_keyboard();
-    return;
+void disk_interrupt(registers_t *regs) {
+    //kprint("Recieved ATA Interrupt.\n");
+    port_word_in(0x1F7);
+    UNUSED(regs);
+    port_byte_out(0xA0, 0x20); /* slave */
+    port_byte_out(0x20, 0x20);
+    //irq_common_stub();
 }
+
+void irq_install() {
+    /* Enable interruptions */
+    asm volatile("sti");
+    /* IRQ0: timer */
+    init_timer(50);
+    /* IRQ1: keyboard */
+    kernel_init_keyboard();
+
+    register_interrupt_handler(46, disk_interrupt);
+}
+
+
+// 0x008fff14
+// 0x008fff14
+// 0x00001bff
