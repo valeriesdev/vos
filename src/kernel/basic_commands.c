@@ -42,7 +42,7 @@ void PAGE(char *args) {
 
 void LS(char *args) {
 	//kprint("\n");
-	struct file* files = get_files();
+	struct file* files = get_files()+1;
 	while(files->magic == 0xFFFFFFFF) {
 		kprintn(files->name);
 		files++;

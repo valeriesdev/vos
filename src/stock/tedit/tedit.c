@@ -48,18 +48,18 @@ static void exit_program() {
 }
 
 static void save_program() {
-	append(keybuffer,'\0');
+	keybuffer[255] = '\0';
 	if(new_file) {
 		write_file(file_name, keybuffer, strlen(keybuffer));
 	} else {
 		overwrite_file(file_name, keybuffer, strlen(keybuffer));
 	}
 
-	struct file* files = get_files()+1;
-	while(files->magic == 0xFFFFFFFF) {
-		kprintn(files->name);
-		files++;
-	}
+	//struct file* files = get_files()+1;
+	//while(files->magic == 0xFFFFFFFF) {
+	//	kprintn(files->name);
+	//	files++;
+	//}
 	backspace(keybuffer);
 }
 
