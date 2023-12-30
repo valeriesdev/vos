@@ -1,6 +1,6 @@
 /**
  * @defgroup   KERNEL kernel
- *
+ * @ingroup    KERNEL_FILES
  * @brief      The operating system kernel entry point
  * @todo       Replace get_keybuffer() calls with reference to local keybuffer
  * 
@@ -36,28 +36,27 @@ vf_ptr_s next_function = NULL;
  * @brief      The kernel entry point.
  * @ingroup    KERNEL
  */
-
-void irq_handle_disk(registers_t * regs) {
-    return;
-}
-
 void kernel_main() {
     kprint("Initializing memory manager.\n");
     initialize_memory();
-
-    kprint("Enabling paging.\n");
-    enable_paging();
-    kprint("Paging enabled.\nLoading FAT from disk.\n");
-
     kprint("Installing ISR.\n");
     isr_install();
     kprint("ISR Installed.\nInstalling IRQ.\n");
     irq_install();
     kprint("IRQ Installed.\n");
 
+
+    kprint("Enabling paging.\n");
+    enable_paging();
+    kprint("Paging enabled.\nLoading FAT from disk.\n");
+
     load_fat_from_disk();
 
     kprint("Welcome to VOS!\n> ");
+
+    uint8_t* page_fault_test = (uint8_t*)(0x810000);
+    set_page_present(0x810000);
+    (*page_fault_test)++;
 
     command_resolver_head = malloc(sizeof(struct command_block)); // Does not need to be freed; should always stay in memory
     command_resolver_head->function = NULLFUNC;
@@ -71,11 +70,7 @@ void kernel_main() {
     register_command(command_resolver_head, HELP, "help");
     register_command(command_resolver_head, DEBUG_PAUSE, "debug_command");
     register_command(command_resolver_head, tedit, "tedit"); 
-
-    /*char* tfile_name = "HELLO_WORLD.TXT";
-    char* exfiledata = "HELLO WORLD\nTHIS IS AN EXAMPLE FILE!!!!\nYAY!!!!\n";
-    uint8_t s = 49;
-    write_file(tfile_name, exfiledata, s);*/
+    
     while(1) {
         if(next_function != NULL) {
             kprint("\n");

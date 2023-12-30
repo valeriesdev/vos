@@ -1,6 +1,9 @@
 /**
+ * @defgroup   KERNEL_FILES kernel
+ **/
+/**
  * @defgroup   BASIC_COMMANDS basic commands
- *
+ * @ingroup    KERNEL_FILES
  * @brief      This file holds the basic kernel commands.
  * 
  * @note       Commands should pass in a char *args, regardless of whether or not they use it. If not, use UNUSED(args) in the function.

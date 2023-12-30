@@ -1,4 +1,13 @@
+#include <stdint.h>
+
 void enable_paging();
+void set_page_present(uint32_t page_address);
+void set_page_absent(uint32_t page_address);
+uint32_t find_first_frame();
+void set_page_value(uint32_t page_address, uint32_t page_value);
+
+uint32_t *page_directory;
+uint32_t *page_tables;
 
 typedef struct page {
     uint32_t present  : 1;  // page present
