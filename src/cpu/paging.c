@@ -20,50 +20,42 @@ void page_fault(registers_t *regs);
 void allocate_frame(page_t *page, uint8_t is_kernel, uint8_t is_writeable);
 void free_frame(page_t *page);
 static char* h_to_a_inline(int n);
-static void set_frame(uint32_t frame_address);
-static void clear_frame(uint32_t frame_address);
 static uint32_t test_frame(uint32_t frame_address);
 uint32_t find_first_frame();
 
-uint32_t *page_directory = NULL;
-uint32_t *map = NULL;
-uint32_t *page_tables = NULL;
-
-page_directory_t *kernel_directory=NULL;
-page_directory_t *current_directory=NULL;
-
-// bitmap
-uint32_t *frames;
-uint32_t nframes;
+paging_structure_t kernel_paging_structure;
+paging_structure_t *paging_structure = &kernel_paging_structure;
 
 /**
- * @brief      Enables paging
+ * @brief      Enables paging for the kernel
+ * @todo       Find out why this takes so long.
+ * @note       It's something related to the usage of structs
  * @ingroup    PAGING
  */
 void enable_paging() {
-    nframes = 1024*1024;                      // the number of page frames
-    frames = (uint32_t*)malloc(0x20000);      // allocate the frame bitmap
-    memory_set((uint8_t*)frames, 0, INDEX_FROM_BIT(1024*1024)); // set all bitmap frames to 0
+    kernel_paging_structure.page_directory = malloc_align(4096, 4096);
+    kernel_paging_structure.page_tables    = malloc_align(1024*1024*4, 4096);
+    kernel_paging_structure.frame_bitmap   = malloc(0x20000);
+    kernel_paging_structure.size           = 1024*1024;
+    
+    memory_set((uint8_t*)kernel_paging_structure.frame_bitmap, 0, INDEX_FROM_BIT(1024*1024)); // set all bitmap frames to 0
 
-	page_directory = malloc_align(4096, 4096);
-
-	page_tables = malloc_align(1024*1024*4, 4096);
 	int i = 0, j = 0;
 	for(i = 0; i < 1024; i++) {     // i corresponds to current page table
 		for(j = 0; j < 1024; j++) { // j corresponds to current page
-            if((1024*i+j)*0x1000 > 0x800000 && (1024*i+j)*0x1000 < 0x7900000) {
-                page_tables[1024*i+j] = ((1024*i+j)*0x1000) | 0b010;  // supervisor rw not present
+            if((1024*i+j)*0x1000 > 0x3000000 && (1024*i+j)*0x1000 < 0x7900000) {
+                kernel_paging_structure.page_tables[1024*i+j] = ((1024*i+j)*0x1000) | 0b010;  // supervisor rw not present
                 clear_frame((1024*i+j)*0x1000);
             } else {
-                page_tables[1024*i+j] = ((1024*i+j)*0x1000) | 0b011;  // supervisor rw present
+                kernel_paging_structure.page_tables[1024*i+j] = ((1024*i+j)*0x1000) | 0b011;  // supervisor rw present
                 set_frame((1024*i+j)*0x1000);
             }
 		}
-		page_directory[i] = ((unsigned int)&page_tables[1024*i]) | 0b011; // supervisor rw present
+		kernel_paging_structure.page_directory[i] = ((unsigned int)&kernel_paging_structure.page_tables[1024*i]) | 0b011; // supervisor rw present
 	}
 
 	register uint32_t *page_directory_reference asm("eax");
-	page_directory_reference = page_directory;
+	page_directory_reference = kernel_paging_structure.page_directory;
 	// load page directory
 	__asm__("mov %eax, %cr3\n\t"
             "mov %cr0, %ebx\n\t"
@@ -77,13 +69,21 @@ void enable_paging() {
 	register_interrupt_handler(14, page_fault);
 }
 
+void switch_paging_structure(paging_structure_t *structure) {
+    paging_structure = structure;
+}
+
+paging_structure_t* get_kernel_structure() {
+    return &kernel_paging_structure;
+}
+
 /**
  * @brief      Sets the page to be present
  * @ingroup    PAGING
  * @param[in]  page_address  The page address
  */
 void set_page_present(uint32_t page_address) {
-    page_tables[page_address/0x1000] |= 0b11;
+    paging_structure->page_tables[page_address/0x1000] |= 0b11;
     set_frame(page_address);
 } 
 
@@ -93,12 +93,12 @@ void set_page_present(uint32_t page_address) {
  * @param[in]  page_address  The page address
  */
 void set_page_absent(uint32_t page_address) {
-    page_tables[page_address/0x1000] &= ~(0b01);
+    paging_structure->page_tables[page_address/0x1000] &= ~(0b01);
     clear_frame(page_address);
 }
 
 void set_page_value(uint32_t page_address, uint32_t page_value) {
-    page_tables[page_address/0x1000] = page_value;
+    paging_structure->page_tables[page_address/0x1000] = page_value;
 }
 
 /**
@@ -107,11 +107,11 @@ void set_page_value(uint32_t page_address, uint32_t page_value) {
  *
  * @param[in]  frame_address  The frame address
  */
-static void set_frame(uint32_t frame_address) {
+void set_frame(uint32_t frame_address) {
     uint32_t frame = frame_address/0x1000;
     uint32_t idx = INDEX_FROM_BIT(frame);
     uint32_t off = OFFSET_FROM_BIT(frame);
-    frames[idx] |= (0x1 << off);
+    paging_structure->frame_bitmap[idx] |= (0x1 << off);
 }
 
 /**
@@ -120,11 +120,11 @@ static void set_frame(uint32_t frame_address) {
  *
  * @param[in]  frame_address  The frame address
  */
-static void clear_frame(uint32_t frame_address) {
+void clear_frame(uint32_t frame_address) {
     uint32_t frame = frame_address/0x1000;
     uint32_t idx = INDEX_FROM_BIT(frame);
     uint32_t off = OFFSET_FROM_BIT(frame);
-    frames[idx] &= ~(0x1 << off);
+    paging_structure->frame_bitmap[idx] &= ~(0x1 << off);
 }
 
 /**
@@ -137,7 +137,7 @@ static uint32_t test_frame(uint32_t frame_address) {
     uint32_t frame = frame_address/0x1000;
     uint32_t idx = INDEX_FROM_BIT(frame);
     uint32_t off = OFFSET_FROM_BIT(frame);
-    return (frames[idx] & (0x1 << off));
+    return (paging_structure->frame_bitmap[idx] & (0x1 << off));
 }
 
 /**
@@ -149,10 +149,10 @@ static uint32_t test_frame(uint32_t frame_address) {
 uint32_t find_first_frame() {
     uint32_t i, j;
     for(i = 0; i < 1024*1024; i++) {
-        if(frames[i] != 0xFFFFFFFF) {
+        if(paging_structure->frame_bitmap[i] != 0xFFFFFFFF) {
             for(j = 0; j < 32; j++) {
                 uint32_t current_bit = 0x1 << j;
-                if(!(frames[i]&current_bit)) return i*4*8 + j;
+                if(!(paging_structure->frame_bitmap[i]&current_bit)) return i*4*8 + j;
             }
         }
     }

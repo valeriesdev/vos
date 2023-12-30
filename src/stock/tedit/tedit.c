@@ -105,5 +105,6 @@ static void initialize() {
 }
 
 void tedit() {
+	//while(1);
 	initialize();
 }

@@ -26,6 +26,8 @@
 
 #include "cpu/ports.h"
 
+#include "cpu/task_handler.h"
+
 
 struct command_block *command_resolver_head;
 char **lkeybuffer = NULL;
@@ -46,7 +48,7 @@ void kernel_main() {
     kprint("IRQ Installed.\n");
 
 
-    kprint("Enabling paging.\n");
+    kprint("Enabling paging. This might take a while...\n");
     enable_paging();
     kprint("Paging enabled.\nLoading FAT from disk.\n");
 
@@ -54,9 +56,9 @@ void kernel_main() {
 
     kprint("Welcome to VOS!\n> ");
 
-    uint8_t* page_fault_test = (uint8_t*)(0x810000);
-    set_page_present(0x810000);
-    (*page_fault_test)++;
+    //uint8_t* page_fault_test = (uint8_t*)(0x3003000);
+    //set_page_present(0x3003000);
+    //(*page_fault_test)++;
 
     command_resolver_head = malloc(sizeof(struct command_block)); // Does not need to be freed; should always stay in memory
     command_resolver_head->function = NULLFUNC;
@@ -70,7 +72,7 @@ void kernel_main() {
     register_command(command_resolver_head, HELP, "help");
     register_command(command_resolver_head, DEBUG_PAUSE, "debug_command");
     register_command(command_resolver_head, tedit, "tedit"); 
-    
+    //start_process(tedit);
     while(1) {
         if(next_function != NULL) {
             kprint("\n");
