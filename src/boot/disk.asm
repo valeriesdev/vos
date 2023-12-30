@@ -3,6 +3,8 @@ disk_load:
     pusha
     push dx
 
+    mov si, 0
+    mov es, si
     mov ah, 0x02
     mov al, dh
     mov cl, 0x02

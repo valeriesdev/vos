@@ -72,6 +72,9 @@ void kernel_main() {
     register_command(command_resolver_head, HELP, "help");
     register_command(command_resolver_head, DEBUG_PAUSE, "debug_command");
     register_command(command_resolver_head, tedit, "tedit"); 
+
+    
+
     //start_process(tedit);
     while(1) {
         if(next_function != NULL) {
