@@ -151,12 +151,12 @@ void find_program_header() {
         void* program = malloc(512);
         //uint32_t z = ((uint32_t)&address_linker)/512;
 
-        read_sectors_ATA_PIO(program, i*4, 1);
+        read_sectors_ATA_PIO(program, i*8, 1);
         if(((struct fat_code*) program)->magic[0] == 0xFFFFFFFF &&
            ((struct fat_code*) program)->magic[1] == 0xFFFFFFFF &&
            ((struct fat_code*) program)->magic[2] == 0xFFFFFFFF &&
            ((struct fat_code*) program)->magic[3] == 0xFFFFFFFF) {
-            i++;
+            //i++;
         }
         free(program);
     }

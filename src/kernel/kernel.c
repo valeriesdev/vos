@@ -41,6 +41,8 @@ vf_ptr_s next_function = NULL;
 extern uint32_t address_linker;
 extern uint32_t length_linker;
 
+void* find_program();
+
 void kernel_main() {
     kprint("Initializing memory manager.\n");
     initialize_memory();
@@ -49,8 +51,6 @@ void kernel_main() {
     kprint("ISR Installed.\nInstalling IRQ.\n");
     irq_install();
     kprint("IRQ Installed.\n");
-
-    find_program_header();
 
     kprint("Enabling paging. This might take a while...\n");
     enable_paging();
@@ -83,8 +83,8 @@ void kernel_main() {
     //uint32_t z = ((uint32_t)&address_linker)/512;
 
     //read_sectors_ATA_PIO(program, z, 2);
-
-    //start_process(tedit);
+    uint8_t* program = find_program();
+    start_process(program, program+ 0x38, 512);
 
 
     while(1) {
@@ -109,6 +109,33 @@ void kernel_main() {
             free(args_processed);
         }
     }
+}
+
+
+struct fat_code {
+    uint32_t magic[4];
+    char name[32];
+    uint32_t lba;
+    uint32_t length;
+} __attribute__((packed));
+
+void* find_program() {
+    int i = 0;
+    for(i = 0; i < 256; i++) {
+        //void* program = malloc((uint32_t)length_linker);
+        void* program = malloc(512);
+        //uint32_t z = ((uint32_t)&address_linker)/512;
+
+        read_sectors_ATA_PIO(program, i*8, 1);
+        if(((struct fat_code*) program)->magic[0] == 0xFFFFFFFF &&
+           ((struct fat_code*) program)->magic[1] == 0xFFFFFFFF &&
+           ((struct fat_code*) program)->magic[2] == 0xFFFFFFFF &&
+           ((struct fat_code*) program)->magic[3] == 0xFFFFFFFF) {
+            return program;
+        }
+        free(program);
+    }
+    return NULL;
 }
 
 void user_input(char *input) {

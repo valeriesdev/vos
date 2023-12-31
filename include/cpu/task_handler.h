@@ -1,1 +1,1 @@
-void start_process(void* current_process_address);
+void start_process(void* load_from_address, void* entry_address, uint32_t length) ;
