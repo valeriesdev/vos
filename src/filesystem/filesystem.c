@@ -137,6 +137,31 @@ void load_fat_from_disk() {
 	}
 }
 
+struct fat_code {
+    uint32_t magic[4];
+    char name[32];
+    uint32_t lba;
+    uint32_t length;
+} __attribute__((packed));
+
+void find_program_header() {
+    int i = 0;
+    for(i = 0; i < 256; i++) {
+        //void* program = malloc((uint32_t)length_linker);
+        void* program = malloc(512);
+        //uint32_t z = ((uint32_t)&address_linker)/512;
+
+        read_sectors_ATA_PIO(program, i*4, 1);
+        if(((struct fat_code*) program)->magic[0] == 0xFFFFFFFF &&
+           ((struct fat_code*) program)->magic[1] == 0xFFFFFFFF &&
+           ((struct fat_code*) program)->magic[2] == 0xFFFFFFFF &&
+           ((struct fat_code*) program)->magic[3] == 0xFFFFFFFF) {
+            i++;
+        }
+        free(program);
+    }
+}
+
 /**
  * @brief      Updates the FAT table to disk
  * @ingroup    FILESYSTEM

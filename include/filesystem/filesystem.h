@@ -6,6 +6,7 @@ struct file {
 	uint32_t lba;
 	uint32_t length;  // In sectors : needs to be updated to be in bytes, most likely
 	uint32_t magic;
+	//uint8_t padding[128-(32+4+4+4+4)];
 };
 
 void load_fat_from_disk();

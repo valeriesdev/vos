@@ -104,6 +104,7 @@ void set_page_value(uint32_t page_address, uint32_t page_value) {
 /**
  * @brief      Sets a frame to be present in our bitmap
  * @ingroup    PAGING
+ * @todo       Last line is incredibly slow, for some reason
  *
  * @param[in]  frame_address  The frame address
  */
@@ -117,6 +118,7 @@ void set_frame(uint32_t frame_address) {
 /**
  * @brief      Sets a frame to be not present in our bitmap
  * @ingroup    PAGING
+ * @todo       Last line is incredibly slow, for some reason
  *
  * @param[in]  frame_address  The frame address
  */

@@ -38,6 +38,9 @@ vf_ptr_s next_function = NULL;
  * @brief      The kernel entry point.
  * @ingroup    KERNEL
  */
+extern uint32_t address_linker;
+extern uint32_t length_linker;
+
 void kernel_main() {
     kprint("Initializing memory manager.\n");
     initialize_memory();
@@ -47,6 +50,7 @@ void kernel_main() {
     irq_install();
     kprint("IRQ Installed.\n");
 
+    find_program_header();
 
     kprint("Enabling paging. This might take a while...\n");
     enable_paging();
@@ -56,6 +60,7 @@ void kernel_main() {
 
     kprint("Welcome to VOS!\n> ");
 
+    //__asm__("jmp 0x3003000");
     //uint8_t* page_fault_test = (uint8_t*)(0x3003000);
     //set_page_present(0x3003000);
     //(*page_fault_test)++;
@@ -73,9 +78,15 @@ void kernel_main() {
     register_command(command_resolver_head, DEBUG_PAUSE, "debug_command");
     register_command(command_resolver_head, tedit, "tedit"); 
 
-    
+    //void* program = malloc((uint32_t)length_linker);
+    //void* program = malloc(512);
+    //uint32_t z = ((uint32_t)&address_linker)/512;
+
+    //read_sectors_ATA_PIO(program, z, 2);
 
     //start_process(tedit);
+
+
     while(1) {
         if(next_function != NULL) {
             kprint("\n");

@@ -39,5 +39,5 @@ typedef struct  {
 } page_directory_t;
 
 
-#define INDEX_FROM_BIT(a) (a/(8*4))
-#define OFFSET_FROM_BIT(a) (a%(8*4))
+#define INDEX_FROM_BIT(a) (a/32)
+#define OFFSET_FROM_BIT(a) (a%32)
