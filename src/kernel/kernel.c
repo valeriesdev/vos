@@ -60,11 +60,6 @@ void kernel_main() {
 
     kprint("Welcome to VOS!\n> ");
 
-    //__asm__("jmp 0x3003000");
-    //uint8_t* page_fault_test = (uint8_t*)(0x3003000);
-    //set_page_present(0x3003000);
-    //(*page_fault_test)++;
-
     command_resolver_head = malloc(sizeof(struct command_block)); // Does not need to be freed; should always stay in memory
     command_resolver_head->function = NULLFUNC;
     command_resolver_head->call_string = "";
@@ -77,15 +72,7 @@ void kernel_main() {
     register_command(command_resolver_head, HELP, "help");
     register_command(command_resolver_head, DEBUG_PAUSE, "debug_command");
     register_command(command_resolver_head, tedit, "tedit"); 
-
-    //void* program = malloc((uint32_t)length_linker);
-    //void* program = malloc(512);
-    //uint32_t z = ((uint32_t)&address_linker)/512;
-
-    //read_sectors_ATA_PIO(program, z, 2);
-    uint8_t* program = find_program();
-    start_process(program, program+ 0x38, 512);
-
+    register_command(command_resolver_head, RUN, "run");
 
     while(1) {
         if(next_function != NULL) {
@@ -99,7 +86,8 @@ void kernel_main() {
                     append(args_processed, args[current_arg][i]);
                 }
                 current_arg++;
-                append(args_processed, ' ');
+                if(args[current_arg] != '\0')
+                    append(args_processed, ' ');
             }
 
             next_function(args_processed);

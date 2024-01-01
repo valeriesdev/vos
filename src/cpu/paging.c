@@ -38,17 +38,19 @@ void enable_paging() {
     kernel_paging_structure.frame_bitmap   = malloc(0x20000);
     kernel_paging_structure.size           = 1024*1024;
     
-    memory_set((uint8_t*)kernel_paging_structure.frame_bitmap, 0, INDEX_FROM_BIT(1024*1024)); // set all bitmap frames to 0
+    memory_set((uint8_t*)kernel_paging_structure.frame_bitmap          , 0xFFFF, 0x20000);
+    memory_set((uint8_t*)&kernel_paging_structure.frame_bitmap[12*1024], 0x0000, (30*1024-2*1024)/4);
+    //memory_set(&kernel_paging_structure.frame_bitmap[30*1024], 0xFFFF, (1023*1024-30*1024)/4);
 
 	int i = 0, j = 0;
 	for(i = 0; i < 1024; i++) {     // i corresponds to current page table
 		for(j = 0; j < 1024; j++) { // j corresponds to current page
             if((1024*i+j)*0x1000 > 0x3000000 && (1024*i+j)*0x1000 < 0x7900000) {
                 kernel_paging_structure.page_tables[1024*i+j] = ((1024*i+j)*0x1000) | 0b010;  // supervisor rw not present
-                clear_frame((1024*i+j)*0x1000);
+                //clear_frame((1024*i+j)*0x1000);
             } else {
                 kernel_paging_structure.page_tables[1024*i+j] = ((1024*i+j)*0x1000) | 0b011;  // supervisor rw present
-                set_frame((1024*i+j)*0x1000);
+                //set_frame((1024*i+j)*0x1000);
             }
 		}
 		kernel_paging_structure.page_directory[i] = ((unsigned int)&kernel_paging_structure.page_tables[1024*i]) | 0b011; // supervisor rw present

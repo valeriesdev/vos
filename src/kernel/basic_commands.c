@@ -65,18 +65,27 @@ void HELP(char *args) {
 }
 
 void DEBUG_PAUSE(char *args) {
-	int i = 0;
+	/*int i = 0;
 	for(i = 0; i < 512*10; i += 1) {
 		void* z = malloc(i);
 		char* x = int_to_ascii(i);
 		kprintn(x);
 		free(z);
 		free(x);
-	}
+	}*/
 
 	//debug_traverse();
-	
+
 	UNUSED(args);
+}
+
+void RUN(char *args) {
+	void* program = read_file(args);
+	if(program != 0) {
+		start_process(program, program+0x38, 512);
+	} else {
+		kprint("Program not found.\n");
+	}
 }
 
 void LESS(char *args) {

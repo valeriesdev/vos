@@ -107,6 +107,20 @@ void memory_set(uint8_t *dest, uint8_t val, uint32_t len) {
 }
 
 /**
+ * @brief      Sets memory to a vlue
+ * @ingroup    MEM
+ * 
+ * @param      dest  The destination to be set
+ * @param[in]  val   The value to set the bytes to
+ * @param[in]  len   The amount of bytes to set
+ */
+void memory_set_32(uint32_t *dest, uint32_t val, uint32_t len) {
+    uint32_t *temp = (uint32_t *)dest;
+    for ( ; len != 0; len--) *temp++ = val;
+}
+
+
+/**
  * Memory Segmentation Functions
  */
 
