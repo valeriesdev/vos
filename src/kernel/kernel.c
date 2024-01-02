@@ -17,7 +17,7 @@
 #include "libc/vstddef.h"
 #include "kernel/kernel.h"
 #include "kernel/commands.h"
-#include "stock/tedit/tedit.h"
+//#include "stock/tedit/tedit.h"
 #include "filesystem/filesystem.h"
 #include "drivers/keyboard.h"
 #include "cpu/timer.h"
@@ -43,7 +43,7 @@ extern uint32_t length_linker;
 
 void* find_program();
 
-void kernel_main() {
+__attribute__((section(".kernel_entry")))  void kernel_main() {
     kprint("Initializing memory manager.\n");
     initialize_memory();
     kprint("Installing ISR.\n");
@@ -71,7 +71,7 @@ void kernel_main() {
     register_command(command_resolver_head, LS, "ls");
     register_command(command_resolver_head, HELP, "help");
     register_command(command_resolver_head, DEBUG_PAUSE, "debug_command");
-    register_command(command_resolver_head, tedit, "tedit"); 
+    //register_command(command_resolver_head, tedit, "tedit"); 
     register_command(command_resolver_head, RUN, "run");
 
     while(1) {
@@ -114,7 +114,7 @@ void* find_program() {
         void* program = malloc(512);
         //uint32_t z = ((uint32_t)&address_linker)/512;
 
-        read_sectors_ATA_PIO(program, i*8, 1);
+        read_sectors_ATA_PIO((uint32_t)program, i*8, 1);
         if(((struct fat_code*) program)->magic[0] == 0xFFFFFFFF &&
            ((struct fat_code*) program)->magic[1] == 0xFFFFFFFF &&
            ((struct fat_code*) program)->magic[2] == 0xFFFFFFFF &&

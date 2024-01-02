@@ -1,3 +1,6 @@
+#ifndef PAGING_H
+#define PAGING_H
+
 #include <stdint.h>
 
 typedef struct {
@@ -41,3 +44,5 @@ typedef struct  {
 
 #define INDEX_FROM_BIT(a) (a/32)
 #define OFFSET_FROM_BIT(a) (a%32)
+
+#endif

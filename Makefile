@@ -18,7 +18,7 @@ binary/kernel.bin: binary/kernel.elf
 	$(LDOBJ) -O binary $^ $@
 
 binary/kernel.elf: binary/kernel_entry.o ${OBJ}
-	$(LD) -o $@ -T linker.s $^ --verbose
+	$(LD) -o $@ -T linker.s $^
 	#$(LD) -o $@ -Ttext 0x1000 $^ --verbose
 
 run: binary/os-image.bin

@@ -38,8 +38,8 @@ void enable_paging() {
     kernel_paging_structure.frame_bitmap   = malloc(0x20000);
     kernel_paging_structure.size           = 1024*1024;
     
-    memory_set((uint8_t*)kernel_paging_structure.frame_bitmap          , 0xFFFF, 0x20000);
-    memory_set((uint8_t*)&kernel_paging_structure.frame_bitmap[12*1024], 0x0000, (30*1024-2*1024)/4);
+    //memory_set((uint8_t*)kernel_paging_structure.frame_bitmap          , 0xFFFF, 0x20000);
+    //memory_set((uint8_t*)&kernel_paging_structure.frame_bitmap[12*1024], 0x0000, (30*1024-2*1024)/4);
     //memory_set(&kernel_paging_structure.frame_bitmap[30*1024], 0xFFFF, (1023*1024-30*1024)/4);
 
 	int i = 0, j = 0;

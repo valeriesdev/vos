@@ -19,6 +19,8 @@
 #include "drivers/screen.h"
 #include "libc/function.h"
 #include "filesystem/filesystem.h"
+#include "cpu/task_handler.h"
+
 extern struct command_block *command_resolver_head;
 
 void ECHO(char *args) {

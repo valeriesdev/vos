@@ -5,11 +5,14 @@
 #include "libc/mem.h"
 #include "libc/string.h"
 #include "filesystem/filesystem.h"
-#include "stock/tedit/tedit.h"
+#include "stock/tedit.h"
 #include "stock/program_interface/popup.h"
 
 #define TRUE 1
 #define FALSE 0
+
+#define tedit_header __attribute__((section(".tedit_header"))) 
+#define tedit_code __attribute__((section(".tedit_code"))) 
 
 // Functions
 static void initialize_keyboard();
@@ -17,6 +20,26 @@ static void exit_program();
 static void initialize();
 static void save_program();
 
+struct fat_code {
+	uint32_t magic[4];
+	char name[32];
+	uint32_t lba; // not needed
+	uint32_t length; // not needed
+} __attribute__((packed));
+
+tedit_header struct fat_code file_info = {
+	.magic = {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+	.name = "tedit.vxv\0",
+	.lba = 0,
+	.length = 3
+};
+
+static const char a[] = "woah... this is a new program.\n I think im loaded at 0xF000000...\n but i'm actually loaded at 0x3003000\0";
+
+tedit_code void func()  {
+	kprint(a);
+	while(1);
+}
 // Variables that will need to be malloc'd and free'd
 char* keybuffer = NULL;
 
@@ -24,6 +47,8 @@ char* keybuffer = NULL;
 uint8_t new_file = NULL;
 char *file_name = NULL;
 uint8_t exit = NULL;
+
+
 
 static void initialize_keyboard() {
 	keybuffer = malloc(sizeof(char)*256);
@@ -54,12 +79,7 @@ static void save_program() {
 	} else {
 		overwrite_file(file_name, keybuffer, strlen(keybuffer));
 	}
-
-	//struct file* files = get_files()+1;
-	//while(files->magic == 0xFFFFFFFF) {
-	//	kprintn(files->name);
-	//	files++;
-	//}
+	
 	backspace(keybuffer);
 }
 
