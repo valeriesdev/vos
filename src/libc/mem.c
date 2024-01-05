@@ -66,7 +66,6 @@ struct block {
 // Private function definitions
 static void *find_free(size_t n);
 static void *alloc(size_t size);
-static void refactor_free();
 static void print_node(struct block *current);
 static void traverse();
 
@@ -105,6 +104,7 @@ void memory_set(uint8_t *dest, uint8_t val, uint32_t len) {
     uint8_t *temp = (uint8_t *)dest;
     for ( ; len != 0; len--) *temp++ = val;
 }
+
 
 /**
  * Memory Segmentation Functions
@@ -232,7 +232,7 @@ void* free(void *address) {
  * @ingroup    MEM
  * @todo       Verify functionality
  */
-static void refactor_free() {
+void refactor_free() {
 	struct block *current = head;
 	while(current != NULL) {
 		if(!(current->used == TRUE || current->next->used == TRUE)) {
@@ -274,7 +274,7 @@ void *malloc(uint32_t size) {
  * @return    The address of the block
  */
 void *malloc_align(uint32_t size, uint32_t align) {
-	struct block * new_block = ((int)((char*)top+ (*top).size + 4096) & 0xFFFFFFFFFFFFF000) - 0x10;// - ALIGN_P(size);
+	struct block * new_block = (void*)(((long)(top + (*top).size + align) & 0xFFFFF000) - 0x10);// - ALIGN_P(size);
 	(*new_block).size = ALIGN(size);
 	(*new_block).next = NULL;
 	(*new_block).valid = 0x0FBC;

@@ -5,11 +5,16 @@
 #include "libc/mem.h"
 #include "libc/string.h"
 #include "filesystem/filesystem.h"
-#include "stock/tedit/tedit.h"
+#include "stock/tedit.h"
 #include "stock/program_interface/popup.h"
+
+#include "cpu/task_handler.h"
 
 #define TRUE 1
 #define FALSE 0
+
+#define tedit_header __attribute__((section(".tedit_header"))) 
+#define tedit_code __attribute__((section(".tedit_code"))) 
 
 // Functions
 static void initialize_keyboard();
@@ -17,6 +22,25 @@ static void exit_program();
 static void initialize();
 static void save_program();
 
+struct fat_code {
+	uint32_t magic[4];
+	char name[32];
+	uint32_t lba; // not needed
+	uint32_t length; // not needed
+} __attribute__((packed));
+
+tedit_header struct fat_code file_info = {
+	.magic = {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+	.name = "tedit.vxv\0",
+	.lba = 0,
+	.length = 3
+};
+
+static const char a[] = "woah... this is a new program.\n I think im loaded at 0xF000000...\n but i'm actually loaded at 0x3003000\0";
+
+tedit_code void func()  {
+	initialize();
+}
 // Variables that will need to be malloc'd and free'd
 char* keybuffer = NULL;
 
@@ -43,8 +67,9 @@ static void exit_program() {
 	kprint("\n> ");
 
 	// Init CLI Keyboard
-	kernel_init_keyboard();
+	//kernel_init_keyboard();
 	exit = 0;
+	reload_kernel();
 }
 
 static void save_program() {
@@ -54,12 +79,7 @@ static void save_program() {
 	} else {
 		overwrite_file(file_name, keybuffer, strlen(keybuffer));
 	}
-
-	//struct file* files = get_files()+1;
-	//while(files->magic == 0xFFFFFFFF) {
-	//	kprintn(files->name);
-	//	files++;
-	//}
+	
 	backspace(keybuffer);
 }
 
@@ -94,7 +114,7 @@ static void initialize() {
 	} else {
 		// procedure for editing file
 		new_file = FALSE;
-		void* old_file = read_file(file_name);
+		void* old_file = read_file(file_name).address;
 		memory_copy((uint8_t*)old_file,(uint8_t*)keybuffer,strlen((char*)old_file));
 		kprint_at(keybuffer,0,1);
 		free(old_file);
@@ -102,8 +122,4 @@ static void initialize() {
 
 	exit = 1;
 	while(exit);
-}
-
-void tedit() {
-	initialize();
 }

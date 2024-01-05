@@ -8,7 +8,7 @@ GDB = gdb
 LD = /usr/local/i386elfgcc/bin/i386-elf-ld
 LDOBJ = /usr/local/i386elfgcc/bin/i386-elf-objcopy
 #CFLAGS = -g -O0 -ffreestanding -Wall -Wextra -Wno-unused-parameter -fno-exceptions -m32 -Iinclude -fvar-tracking
-CFLAGS = -g -O0 -ffreestanding -Wall -Wextra -m32 -Iinclude -fvar-tracking
+CFLAGS = -g -fno-inline -O0 -ffreestanding -Wall -Wextra -m32 -Iinclude -fvar-tracking
 
 binary/os-image.bin: binary/bootsect.bin binary/kernel.bin
 	cat $^ > binary/os-image.bin
@@ -18,7 +18,8 @@ binary/kernel.bin: binary/kernel.elf
 	$(LDOBJ) -O binary $^ $@
 
 binary/kernel.elf: binary/kernel_entry.o ${OBJ}
-	$(LD) -o $@ -Ttext 0x1000 $^  
+	$(LD) -o $@ -T linker.s $^
+	#$(LD) -o $@ -Ttext 0x1000 $^ --verbose
 
 run: binary/os-image.bin
 	#qemu-system-i386 -fda binary/os-image.bin
