@@ -1,6 +1,6 @@
 /**
  * @defgroup   COMMANDS commands
- * @ingroup    KERNEL_FILES
+ *
  * @brief      This file provides functionality to register and recall commands by passing in a string.
  * 
  * @par

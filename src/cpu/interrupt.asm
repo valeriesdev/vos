@@ -3,8 +3,6 @@
 [extern irq_handler]
 
 global irq_common_stub;
-
-section .text
 ; Common ISR code
 isr_common_stub:
     ; 1. Save CPU state

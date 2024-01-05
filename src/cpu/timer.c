@@ -1,11 +1,3 @@
-/**
- * @defgroup   TIMER timer
- * @ingroup    CPU
- * @brief      This file implements the timer.
- *
- * @author     Valerie Whitmire
- * @date       2023
- */
 #include "cpu/timer.h"
 #include "cpu/isr.h"
 #include "cpu/ports.h"
@@ -18,11 +10,6 @@
 
 volatile uint32_t tick = 0;
 
-/**
- * @brief      The callback to be called on timer IRQs
- *
- * @param      regs  The registers state
- */
 static void timer_callback(registers_t *regs) {
     tick++;
 
@@ -36,11 +23,6 @@ static void timer_callback(registers_t *regs) {
     UNUSED(regs);
 }
 
-/**
- * @brief      Initializes the timer.
- *
- * @param[in]  freq  The frequency of the timer
- */
 void init_timer(uint32_t freq) {
     /* Install the function we just wrote */
     register_interrupt_handler(IRQ0, timer_callback);

@@ -1,11 +1,3 @@
-/**
- * @defgroup   ISR isr
- * @ingroup    CPU
- * @brief      This file implements the interrupt service routines.
- *
- * @author     Valerie Whitire
- * @date       2023
- */
 #include "cpu/isr.h"
 #include "cpu/idt.h"
 #include "drivers/screen.h"
@@ -14,14 +6,11 @@
 #include "cpu/timer.h"
 #include "cpu/ports.h"
 #include "libc/function.h"
-#include "kernel/kernel.h"
 
 isr_t interrupt_handlers[256];
 
-/**
- * @brief      Installs all ISRs
- * @ingroup    ISR
- */
+/* Can't do this with a loop because we need the address
+ * of the function names */
 void isr_install() {
     set_idt_gate(0, (uint32_t)isr0);
     set_idt_gate(1, (uint32_t)isr1);
@@ -128,39 +117,18 @@ static char *exception_messages[] = {
     "Reserved"
 };
 
-/**
- * @brief      The handler function which will be called on an ISR interrupt
- * @ingroup    ISR
- * @param      r     The current register state
- */
 void isr_handler(registers_t *r) {
-    if (interrupt_handlers[r->int_no] != 0) {
-        isr_t handler = interrupt_handlers[r->int_no];
-        handler(r);
-    } else {
-        kprint("received interrupt: ");
-        kprint(int_to_ascii(r->int_no));
-        kprint("\n");
-        kprint(exception_messages[r->int_no]);
-        kprint("\n");
-    }
+    kprint("received interrupt: ");
+    kprint(int_to_ascii(r->int_no));
+    kprint("\n");
+    kprint(exception_messages[r->int_no]);
+    kprint("\n");
 }
 
-/**
- * @brief      Registers an interrupts handler
- * @ingroup    ISR
- * @param[in]  n        The interrupt to register to
- * @param[in]  handler  The handler
- */
 void register_interrupt_handler(uint8_t n, isr_t handler) {
     interrupt_handlers[n] = handler;
 }
 
-/**
- * @brief      Handles an IRQ interrupt
- * @ingroup    ISR
- * @param      r     The current register state
- */
 void irq_handler(registers_t *r) {
     /* After every interrupt we need to send an EOI to the PICs
      * or they will not send another interrupt again */
@@ -174,11 +142,8 @@ void irq_handler(registers_t *r) {
     }
 }
 
-/**
- * @brief      The disk interrupt to be called on an ATA irq
- * @ingroup    ISR
- * @param      regs  The current register state
- */
+extern void irq_common_stub();
+
 void disk_interrupt(registers_t *regs) {
     //kprint("Recieved ATA Interrupt.\n");
     port_word_in(0x1F7);
@@ -188,10 +153,6 @@ void disk_interrupt(registers_t *regs) {
     //irq_common_stub();
 }
 
-/**
- * @brief      Installs the IRQs
- * @ingroup    ISR
- */
 void irq_install() {
     /* Enable interruptions */
     asm volatile("sti");

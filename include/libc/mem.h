@@ -13,8 +13,6 @@ void* get_top();
 
 void *malloc_align(uint32_t size, uint32_t align);
 
-void refactor_free();
-
 //debug
 void debug_traverse();
 

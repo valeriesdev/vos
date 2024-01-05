@@ -18,4 +18,4 @@ An operating system built over quite some time, largely based off of cfenollosa'
  - [ ] Pixel-Based Graphics Driver
  - [ ] GUI
  - [ ] Multitasking
- - [ ] Bare metal capability
+ - [ ] Barebones Capability

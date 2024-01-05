@@ -48,7 +48,7 @@ static void reset_keyboard();
  * @ingroup KEYBOARD
  */
 char* key_buffer = NULL;
-struct key_callback *key_callbacks = NULL;
+struct key_callback key_callbacks[10];
 uint8_t c_key = NULL;
 uint32_t keypresses = 0;
 uint8_t special_key_behavior = 0;
@@ -186,8 +186,6 @@ static void default_keyboard_callback(registers_t *regs) {
 }
 
 static void reset_keyboard() {
-    if(key_callbacks != NULL) free(key_callbacks);
-    key_callbacks = malloc(sizeof(struct key_callback)*10);
     key_buffer = 0x0;
     int i = 0;
     for(; i < 10; i++) {
